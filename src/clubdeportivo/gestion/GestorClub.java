@@ -8,15 +8,20 @@ import clubdeportivo.modelo.Instructor;
 import clubdeportivo.modelo.Socio;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Clase central del sistema. Administra la colección principal de
- * Actividades (Map, JCF) y, a través de cada Actividad, la colección
- * anidada de Socios inscritos (List, JCF).
+ * Clase central del sistema (capa de modelo/negocio). Administra la
+ * colección principal de Actividades (Map, JCF) y, a través de cada
+ * Actividad, la colección anidada de Socios inscritos (List, JCF).
+ *
+ * IMPORTANTE: por buenas prácticas de encapsulamiento, ningún método
+ * público de esta clase retorna una colección (List/Map/Collection);
+ * las colecciones internas jamás se exponen hacia afuera. Cuando se
+ * necesita entregar varios elementos, se retorna un arreglo construido
+ * a partir de la colección interna.
  *
  * Todos los atributos son privados con sus respectivos accesos (SIA-3).
  */
@@ -26,7 +31,8 @@ public class GestorClub {
     private Map<String, Actividad> actividades;
 
     // Repositorio auxiliar de instructores (no es una de las 2 colecciones
-    // exigidas, pero facilita administrarlos independientemente).
+    // exigidas por el enunciado, pero facilita administrarlos de forma
+    // independiente; tampoco se expone directamente hacia afuera).
     private Map<String, Instructor> instructores;
 
     public GestorClub() {
@@ -40,8 +46,16 @@ public class GestorClub {
         actividades.put(actividad.getCodigo(), actividad);
     }
 
-    public Collection<Actividad> listarActividades() {
-        return actividades.values();
+    /**
+     * Devuelve todas las actividades como arreglo (no se retorna la
+     * colección interna).
+     */
+    public Actividad[] listarActividades() {
+        return actividades.values().toArray(new Actividad[0]);
+    }
+
+    public int cantidadActividades() {
+        return actividades.size();
     }
 
     public Actividad buscarActividad(String codigo) throws ElementoNoEncontradoException {
@@ -66,18 +80,18 @@ public class GestorClub {
         actividades.remove(codigo);
     }
 
-    public Map<String, Actividad> getActividades() {
-        return actividades;
-    }
-
     // ==================== INSTRUCTORES (repositorio auxiliar) ====================
 
     public void agregarInstructor(Instructor instructor) {
         instructores.put(instructor.getId(), instructor);
     }
 
-    public Collection<Instructor> listarInstructores() {
-        return instructores.values();
+    /**
+     * Devuelve todos los instructores como arreglo (no se retorna la
+     * colección interna).
+     */
+    public Instructor[] listarInstructores() {
+        return instructores.values().toArray(new Instructor[0]);
     }
 
     public Instructor buscarInstructor(String id) throws ElementoNoEncontradoException {
@@ -88,10 +102,6 @@ public class GestorClub {
         return i;
     }
 
-    public Map<String, Instructor> getInstructores() {
-        return instructores;
-    }
-
     // ==================== SOCIOS (Colección 2, anidada) ====================
 
     public void inscribirSocio(String codigoActividad, Socio socio)
@@ -100,7 +110,11 @@ public class GestorClub {
         a.inscribirSocio(socio);
     }
 
-    public List<Socio> listarSociosDeActividad(String codigoActividad) throws ElementoNoEncontradoException {
+    /**
+     * Devuelve los socios inscritos en una actividad como arreglo
+     * (la Actividad ya se encarga de no exponer su List interna).
+     */
+    public Socio[] listarSociosDeActividad(String codigoActividad) throws ElementoNoEncontradoException {
         Actividad a = buscarActividad(codigoActividad);
         return a.getInscritos();
     }
@@ -134,9 +148,13 @@ public class GestorClub {
      * inserción/edición/eliminación/reportes), pensada para que el club
      * pueda promocionar rápidamente los cupos abiertos.
      *
+     * El filtrado se arma internamente con una List auxiliar (para no
+     * depender de un arreglo de tamaño fijo mientras se recorre), pero
+     * el método retorna el resultado ya convertido a arreglo.
+     *
      * @param filtroDeporte si es null, no filtra por deporte.
      */
-    public List<Actividad> listarActividadesConCupoDisponible(Deporte filtroDeporte) {
+    public Actividad[] listarActividadesConCupoDisponible(Deporte filtroDeporte) {
         List<Actividad> resultado = new ArrayList<>();
         for (Actividad a : actividades.values()) {
             boolean tieneCupo = a.getCupoDisponible() > 0;
@@ -145,7 +163,7 @@ public class GestorClub {
                 resultado.add(a);
             }
         }
-        return resultado;
+        return resultado.toArray(new Actividad[0]);
     }
 
     // ==================== DATOS INICIALES (SIA-3) ====================
@@ -154,30 +172,77 @@ public class GestorClub {
      * Carga datos de ejemplo que permiten ejecutar cualquiera de las
      * funcionalidades del sistema sin depender de archivos externos.
      * Se invoca únicamente si no existen datos persistidos previamente.
+     *
+     * Se cargan bastantes datos de ejemplo (7 instructores, 8 actividades
+     * cubriendo todos los deportes, y más de 20 socios distribuidos entre
+     * ellas) para que el sistema tenga, desde el primer arranque, un
+     * conjunto de datos representativo, similar a una tabla de Excel/CSV
+     * ya poblada.
      */
     public void cargarDatosIniciales() {
         Instructor i1 = new Instructor("I001", "Marcela", "Rojas", 34, "marcela.rojas@club.cl", "Fútbol", 650000);
         Instructor i2 = new Instructor("I002", "Pedro", "Salinas", 41, "pedro.salinas@club.cl", "Natación", 700000);
         Instructor i3 = new Instructor("I003", "Valentina", "Ibáñez", 29, "valentina.ibanez@club.cl", "Crossfit", 600000);
+        Instructor i4 = new Instructor("I004", "Rodrigo", "Contreras", 37, "rodrigo.contreras@club.cl", "Básquetbol", 620000);
+        Instructor i5 = new Instructor("I005", "Javiera", "Soto", 26, "javiera.soto@club.cl", "Vóleibol", 580000);
+        Instructor i6 = new Instructor("I006", "Andrés", "Herrera", 45, "andres.herrera@club.cl", "Tenis", 690000);
+        Instructor i7 = new Instructor("I007", "Constanza", "Reyes", 31, "constanza.reyes@club.cl", "Atletismo", 610000);
         agregarInstructor(i1);
         agregarInstructor(i2);
         agregarInstructor(i3);
+        agregarInstructor(i4);
+        agregarInstructor(i5);
+        agregarInstructor(i6);
+        agregarInstructor(i7);
 
-        Actividad act1 = new Actividad("A001", "Fútbol Formativo", Deporte.FUTBOL, "Lunes 18:00-19:30", 4, i1);
-        Actividad act2 = new Actividad("A002", "Natación Adultos", Deporte.NATACION, "Martes 07:00-08:00", 3, i2);
-        Actividad act3 = new Actividad("A003", "Crossfit Intensivo", Deporte.CROSSFIT, "Miércoles 19:00-20:00", 2, i3);
+        Actividad act1 = new Actividad("A001", "Fútbol Formativo", Deporte.FUTBOL, "Lunes 18:00-19:30", 6, i1);
+        Actividad act2 = new Actividad("A002", "Natación Adultos", Deporte.NATACION, "Martes 07:00-08:00", 5, i2);
+        Actividad act3 = new Actividad("A003", "Crossfit Intensivo", Deporte.CROSSFIT, "Miércoles 19:00-20:00", 4, i3);
+        Actividad act4 = new Actividad("A004", "Básquetbol Damas", Deporte.BASQUETBOL, "Jueves 18:30-20:00", 5, i4);
+        Actividad act5 = new Actividad("A005", "Vóleibol Mixto", Deporte.VOLEIBOL, "Viernes 19:00-20:30", 6, i5);
+        Actividad act6 = new Actividad("A006", "Tenis Principiantes", Deporte.TENIS, "Sábado 09:00-10:30", 3, i6);
+        Actividad act7 = new Actividad("A007", "Atletismo Fondo", Deporte.ATLETISMO, "Lunes 07:00-08:00", 5, i7);
+        Actividad act8 = new Actividad("A008", "Fútbol Senior", Deporte.FUTBOL, "Miércoles 20:00-21:30", 4, i1);
         agregarActividad(act1);
         agregarActividad(act2);
         agregarActividad(act3);
-
-        Socio s1 = new Socio("S001", "Camila", "Fuentes", 22, "camila.fuentes@mail.cl", "2026-03-01");
-        Socio s2 = new Socio("S002", "Diego", "Vera", 27, "diego.vera@mail.cl", "2026-03-02");
-        Socio s3 = new Socio("S003", "Fernanda", "Muñoz", 31, "fernanda.munoz@mail.cl", "2026-03-03");
+        agregarActividad(act4);
+        agregarActividad(act5);
+        agregarActividad(act6);
+        agregarActividad(act7);
+        agregarActividad(act8);
 
         try {
-            inscribirSocio("A001", s1);
-            inscribirSocio("A001", s2);
-            inscribirSocio("A002", s3);
+            inscribirSocio("A001", new Socio("S001", "Camila", "Fuentes", 22, "camila.fuentes@mail.cl", "2026-03-01"));
+            inscribirSocio("A001", new Socio("S002", "Diego", "Vera", 27, "diego.vera@mail.cl", "2026-03-02"));
+            inscribirSocio("A001", new Socio("S003", "Matías", "Cerda", 19, "matias.cerda@mail.cl", "2026-03-04"));
+            inscribirSocio("A001", new Socio("S004", "Ignacio", "Bravo", 24, "ignacio.bravo@mail.cl", "2026-03-05"));
+
+            inscribirSocio("A002", new Socio("S005", "Fernanda", "Muñoz", 31, "fernanda.munoz@mail.cl", "2026-03-03"));
+            inscribirSocio("A002", new Socio("S006", "Pablo", "Araya", 45, "pablo.araya@mail.cl", "2026-03-06"));
+            inscribirSocio("A002", new Socio("S007", "Sofía", "Navarro", 28, "sofia.navarro@mail.cl", "2026-03-07"));
+
+            inscribirSocio("A003", new Socio("S008", "Tomás", "Gómez", 33, "tomas.gomez@mail.cl", "2026-03-08"));
+            inscribirSocio("A003", new Socio("S009", "Antonia", "Silva", 26, "antonia.silva@mail.cl", "2026-03-09"));
+
+            inscribirSocio("A004", new Socio("S010", "Valeria", "Torres", 20, "valeria.torres@mail.cl", "2026-03-10"));
+            inscribirSocio("A004", new Socio("S011", "Josefa", "Riquelme", 23, "josefa.riquelme@mail.cl", "2026-03-11"));
+            inscribirSocio("A004", new Socio("S012", "Camila", "Vidal", 25, "camila.vidal@mail.cl", "2026-03-12"));
+
+            inscribirSocio("A005", new Socio("S013", "Benjamín", "Rojas", 21, "benjamin.rojas@mail.cl", "2026-03-13"));
+            inscribirSocio("A005", new Socio("S014", "Martina", "Flores", 24, "martina.flores@mail.cl", "2026-03-14"));
+            inscribirSocio("A005", new Socio("S015", "Cristóbal", "Paredes", 29, "cristobal.paredes@mail.cl", "2026-03-15"));
+            inscribirSocio("A005", new Socio("S016", "Isidora", "Campos", 18, "isidora.campos@mail.cl", "2026-03-16"));
+
+            inscribirSocio("A006", new Socio("S017", "Felipe", "Zúñiga", 40, "felipe.zuniga@mail.cl", "2026-03-17"));
+            inscribirSocio("A006", new Socio("S018", "Daniela", "Espinoza", 35, "daniela.espinoza@mail.cl", "2026-03-18"));
+
+            inscribirSocio("A007", new Socio("S019", "Gabriel", "Morales", 30, "gabriel.morales@mail.cl", "2026-03-19"));
+            inscribirSocio("A007", new Socio("S020", "Amanda", "Castro", 27, "amanda.castro@mail.cl", "2026-03-20"));
+            inscribirSocio("A007", new Socio("S021", "Nicolás", "Vergara", 22, "nicolas.vergara@mail.cl", "2026-03-21"));
+
+            inscribirSocio("A008", new Socio("S022", "Rocío", "Sepúlveda", 38, "rocio.sepulveda@mail.cl", "2026-03-22"));
+            inscribirSocio("A008", new Socio("S023", "Hernán", "Toro", 42, "hernan.toro@mail.cl", "2026-03-23"));
         } catch (ElementoNoEncontradoException | CupoExcedidoException e) {
             // No debería ocurrir con los datos de ejemplo controlados.
             System.out.println("Error inesperado al cargar datos iniciales: " + e.getMessage());

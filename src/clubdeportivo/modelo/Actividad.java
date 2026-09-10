@@ -84,8 +84,23 @@ public class Actividad {
         this.instructor = instructor;
     }
 
-    public List<Socio> getInscritos() {
-        return inscritos;
+    /**
+     * Devuelve los socios inscritos como un arreglo (no se expone la
+     * colección interna para no romper el encapsulamiento ni permitir
+     * que se modifique la lista desde fuera sin pasar por las reglas
+     * de negocio de esta clase).
+     */
+    public Socio[] getInscritos() {
+        return inscritos.toArray(new Socio[0]);
+    }
+
+    /**
+     * Cantidad de socios inscritos actualmente (equivalente a
+     * getInscritos().length, evitando construir el arreglo si solo se
+     * necesita el tamaño).
+     */
+    public int cantidadInscritos() {
+        return inscritos.size();
     }
 
     /**

@@ -1,3 +1,8 @@
-A001;Fútbol Formativo;FUTBOL;Lunes 18:00-19:30;4;I001
-A002;Natación Adultos;NATACION;Martes 07:00-08:00;3;I002
-A003;Crossfit Intensivo;CROSSFIT;Miércoles 19:00-20:00;2;I003
+A001;Fútbol Formativo;FUTBOL;Lunes 18:00-19:30;6;I001
+A002;Natación Adultos;NATACION;Martes 07:00-08:00;5;I002
+A003;Crossfit Intensivo;CROSSFIT;Miércoles 19:00-20:00;4;I003
+A004;Básquetbol Damas;BASQUETBOL;Jueves 18:30-20:00;5;I004
+A005;Vóleibol Mixto;VOLEIBOL;Viernes 19:00-20:30;6;I005
+A006;Tenis Principiantes;TENIS;Sábado 09:00-10:30;3;I006
+A007;Atletismo Fondo;ATLETISMO;Lunes 07:00-08:00;5;I007
+A008;Fútbol Senior;FUTBOL;Miércoles 20:00-21:30;4;I001

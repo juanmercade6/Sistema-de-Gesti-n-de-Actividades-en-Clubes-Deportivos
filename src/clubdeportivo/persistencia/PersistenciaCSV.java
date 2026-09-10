@@ -30,11 +30,13 @@ public class PersistenciaCSV {
 
     private static final String SEP = ";";
 
+    private String carpetaDatos;
     private String rutaInstructores;
     private String rutaActividades;
     private String rutaSocios;
 
     public PersistenciaCSV(String carpetaDatos) {
+        this.carpetaDatos = carpetaDatos;
         this.rutaInstructores = carpetaDatos + File.separator + "instructores.csv";
         this.rutaActividades = carpetaDatos + File.separator + "actividades.csv";
         this.rutaSocios = carpetaDatos + File.separator + "socios.csv";
@@ -111,8 +113,11 @@ public class PersistenciaCSV {
      * y todas las inscripciones de socios) en los 3 archivos CSV.
      */
     public void guardarDatos(GestorClub gestor) {
+        Instructor[] instructores = gestor.listarInstructores();
+        Actividad[] actividades = gestor.listarActividades();
+
         try (PrintWriter pw = new PrintWriter(new FileWriter(rutaInstructores))) {
-            for (Instructor i : gestor.listarInstructores()) {
+            for (Instructor i : instructores) {
                 pw.println(String.join(SEP,
                         i.getId(), i.getNombre(), i.getApellido(),
                         String.valueOf(i.getEdad()), i.getEmail(),
@@ -123,7 +128,7 @@ public class PersistenciaCSV {
         }
 
         try (PrintWriter pw = new PrintWriter(new FileWriter(rutaActividades))) {
-            for (Actividad a : gestor.listarActividades()) {
+            for (Actividad a : actividades) {
                 String idInstructor = (a.getInstructor() != null) ? a.getInstructor().getId() : "";
                 pw.println(String.join(SEP,
                         a.getCodigo(), a.getNombre(), a.getDeporte().name(),
@@ -134,7 +139,7 @@ public class PersistenciaCSV {
         }
 
         try (PrintWriter pw = new PrintWriter(new FileWriter(rutaSocios))) {
-            for (Actividad a : gestor.listarActividades()) {
+            for (Actividad a : actividades) {
                 for (Socio s : a.getInscritos()) {
                     pw.println(String.join(SEP,
                             s.getNumeroSocio(), s.getNombre(), s.getApellido(),
@@ -144,6 +149,27 @@ public class PersistenciaCSV {
             }
         } catch (IOException e) {
             System.out.println("Error al guardar socios: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Genera un reporte CSV de utilidad para el negocio (distinto de los
+     * archivos de persistencia), con el detalle de ocupación de cada
+     * actividad, pensado para abrirse en una planilla de cálculo.
+     */
+    public void exportarReporte(GestorClub gestor, String nombreArchivo) throws IOException {
+        String ruta = carpetaDatos + File.separator + nombreArchivo;
+        new File(carpetaDatos).mkdirs();
+        try (PrintWriter pw = new PrintWriter(new FileWriter(ruta))) {
+            pw.println(String.join(SEP, "Codigo", "Nombre", "Deporte", "Horario",
+                    "Instructor", "CupoMaximo", "Inscritos", "CupoDisponible"));
+            for (Actividad a : gestor.listarActividades()) {
+                String instructor = (a.getInstructor() != null)
+                        ? a.getInstructor().getNombre() + " " + a.getInstructor().getApellido() : "Sin asignar";
+                pw.println(String.join(SEP, a.getCodigo(), a.getNombre(), a.getDeporte().name(),
+                        a.getHorario(), instructor, String.valueOf(a.getCupoMaximo()),
+                        String.valueOf(a.cantidadInscritos()), String.valueOf(a.getCupoDisponible())));
+            }
         }
     }
 }

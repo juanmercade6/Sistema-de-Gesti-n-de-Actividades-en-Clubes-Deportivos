@@ -2,13 +2,12 @@ package clubdeportivo.vista;
 
 import clubdeportivo.excepciones.CupoExcedidoException;
 import clubdeportivo.excepciones.ElementoNoEncontradoException;
-import clubdeportivo.gestion.GestorClub;
+import clubdeportivo.controlador.ControladorClub;
 import clubdeportivo.modelo.Actividad;
 import clubdeportivo.modelo.Deporte;
 import clubdeportivo.modelo.Instructor;
 import clubdeportivo.modelo.Socio;
 
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -17,11 +16,11 @@ import java.util.Scanner;
  */
 public class MenuConsola {
 
-    private GestorClub gestor;
+    private ControladorClub controlador;
     private Scanner sc;
 
-    public MenuConsola(GestorClub gestor, Scanner sc) {
-        this.gestor = gestor;
+    public MenuConsola(ControladorClub controlador, Scanner sc) {
+        this.controlador = controlador;
         this.sc = sc;
     }
 
@@ -32,6 +31,7 @@ public class MenuConsola {
             System.out.println("1. Gestión de Actividades");
             System.out.println("2. Gestión de Socios (inscripciones)");
             System.out.println("3. Actividades con cupos disponibles (filtro por deporte)");
+            System.out.println("4. Generar reporte (CSV)");
             System.out.println("0. Guardar y salir");
             System.out.print("Seleccione una opción: ");
             opcion = leerEntero();
@@ -40,6 +40,7 @@ public class MenuConsola {
                 case 1: menuActividades(); break;
                 case 2: menuSocios(); break;
                 case 3: filtrarCupoDisponible(); break;
+                case 4: generarReporte(); break;
                 case 0: System.out.println("Guardando datos y saliendo..."); break;
                 default: System.out.println("Opción inválida.");
             }
@@ -87,8 +88,7 @@ public class MenuConsola {
 
             Instructor instructor = seleccionarInstructor();
 
-            Actividad a = new Actividad(codigo, nombre, deporte, horario, cupo, instructor);
-            gestor.agregarActividad(a);
+            controlador.agregarActividad(codigo, nombre, deporte, horario, cupo, instructor);
             System.out.println("Actividad agregada correctamente.");
         } catch (Exception e) {
             System.out.println("Error al agregar actividad: " + e.getMessage());
@@ -97,7 +97,7 @@ public class MenuConsola {
 
     private void listarActividades() {
         System.out.println("\n--- Listado de Actividades ---");
-        for (Actividad a : gestor.listarActividades()) {
+        for (Actividad a : controlador.listarActividades()) {
             System.out.println(a);
         }
     }
@@ -114,7 +114,7 @@ public class MenuConsola {
             int cupo = leerEntero();
             Instructor instructor = seleccionarInstructor();
 
-            gestor.editarActividad(codigo, nombre, horario, cupo, instructor);
+            controlador.editarActividad(codigo, nombre, horario, cupo, instructor);
             System.out.println("Actividad editada correctamente.");
         } catch (ElementoNoEncontradoException e) {
             System.out.println("Error: " + e.getMessage());
@@ -125,7 +125,7 @@ public class MenuConsola {
         try {
             System.out.print("Código de la actividad a eliminar: ");
             String codigo = sc.nextLine();
-            gestor.eliminarActividad(codigo);
+            controlador.eliminarActividad(codigo);
             System.out.println("Actividad eliminada correctamente.");
         } catch (ElementoNoEncontradoException e) {
             System.out.println("Error: " + e.getMessage());
@@ -136,7 +136,7 @@ public class MenuConsola {
         try {
             System.out.print("Código de la actividad a buscar: ");
             String codigo = sc.nextLine();
-            Actividad a = gestor.buscarActividad(codigo);
+            Actividad a = controlador.buscarActividad(codigo);
             System.out.println("Encontrada: " + a);
         } catch (ElementoNoEncontradoException e) {
             System.out.println("Error: " + e.getMessage());
@@ -188,9 +188,9 @@ public class MenuConsola {
             String fecha = sc.nextLine();
 
             Socio s = new Socio(numeroSocio, nombre, apellido, edad, email, fecha);
-            gestor.inscribirSocio(codigoActividad, s);
+            controlador.inscribirSocio(codigoActividad, s);
 
-            Actividad a = gestor.buscarActividad(codigoActividad);
+            Actividad a = controlador.buscarActividad(codigoActividad);
             System.out.println("Socio inscrito correctamente.");
             System.out.println(s.generarComprobante(a.getNombre()));
         } catch (ElementoNoEncontradoException | CupoExcedidoException e) {
@@ -202,12 +202,12 @@ public class MenuConsola {
         try {
             System.out.print("Código de la actividad: ");
             String codigo = sc.nextLine();
-            List<Socio> socios = gestor.listarSociosDeActividad(codigo);
+            Socio[] socios = controlador.listarSociosDeActividad(codigo);
             System.out.println("\n--- Socios inscritos en " + codigo + " ---");
             for (Socio s : socios) {
                 System.out.println(s.mostrarInfo());
             }
-            if (socios.isEmpty()) {
+            if (socios.length == 0) {
                 System.out.println("(sin socios inscritos)");
             }
         } catch (ElementoNoEncontradoException e) {
@@ -230,7 +230,7 @@ public class MenuConsola {
             System.out.print("Nuevo email: ");
             String email = sc.nextLine();
 
-            gestor.editarSocio(codigoActividad, numeroSocio, nombre, apellido, edad, email);
+            controlador.editarSocio(codigoActividad, numeroSocio, nombre, apellido, edad, email);
             System.out.println("Socio editado correctamente.");
         } catch (ElementoNoEncontradoException e) {
             System.out.println("Error: " + e.getMessage());
@@ -243,7 +243,7 @@ public class MenuConsola {
             String codigoActividad = sc.nextLine();
             System.out.print("Número de socio a eliminar: ");
             String numeroSocio = sc.nextLine();
-            gestor.eliminarSocio(codigoActividad, numeroSocio);
+            controlador.eliminarSocio(codigoActividad, numeroSocio);
             System.out.println("Socio eliminado correctamente.");
         } catch (ElementoNoEncontradoException e) {
             System.out.println("Error: " + e.getMessage());
@@ -256,7 +256,7 @@ public class MenuConsola {
             String codigoActividad = sc.nextLine();
             System.out.print("Número de socio a buscar: ");
             String numeroSocio = sc.nextLine();
-            Socio s = gestor.buscarSocio(codigoActividad, numeroSocio);
+            Socio s = controlador.buscarSocio(codigoActividad, numeroSocio);
             System.out.println("Encontrado: " + s.mostrarInfo());
         } catch (ElementoNoEncontradoException e) {
             System.out.println("Error: " + e.getMessage());
@@ -272,13 +272,24 @@ public class MenuConsola {
         if (resp.trim().equalsIgnoreCase("S")) {
             filtro = seleccionarDeporte();
         }
-        List<Actividad> resultado = gestor.listarActividadesConCupoDisponible(filtro);
+        Actividad[] resultado = controlador.listarActividadesConCupoDisponible(filtro);
         System.out.println("\n--- Actividades con cupos disponibles ---");
         for (Actividad a : resultado) {
             System.out.println(a + " -> Cupos disponibles: " + a.getCupoDisponible());
         }
-        if (resultado.isEmpty()) {
+        if (resultado.length == 0) {
             System.out.println("No hay actividades con cupos disponibles para ese criterio.");
+        }
+    }
+
+    // ==================== REPORTE (SIA-O2) ====================
+
+    private void generarReporte() {
+        try {
+            controlador.generarReporte();
+            System.out.println("Reporte generado correctamente: " + controlador.getNombreArchivoReporte());
+        } catch (java.io.IOException e) {
+            System.out.println("Error al generar el reporte: " + e.getMessage());
         }
     }
 
@@ -299,21 +310,21 @@ public class MenuConsola {
     }
 
     private Instructor seleccionarInstructor() {
-        List<Instructor> lista = new java.util.ArrayList<>(gestor.listarInstructores());
-        if (lista.isEmpty()) {
+        Instructor[] lista = controlador.listarInstructores();
+        if (lista.length == 0) {
             System.out.println("No hay instructores registrados. La actividad quedará sin instructor.");
             return null;
         }
         System.out.println("Seleccione un instructor:");
-        for (int i = 0; i < lista.size(); i++) {
-            System.out.println((i + 1) + ". " + lista.get(i).getNombre() + " " + lista.get(i).getApellido());
+        for (int i = 0; i < lista.length; i++) {
+            System.out.println((i + 1) + ". " + lista[i].getNombre() + " " + lista[i].getApellido());
         }
         int opcion = leerEntero();
-        if (opcion < 1 || opcion > lista.size()) {
+        if (opcion < 1 || opcion > lista.length) {
             System.out.println("Opción inválida, la actividad quedará sin instructor.");
             return null;
         }
-        return lista.get(opcion - 1);
+        return lista[opcion - 1];
     }
 
     private int leerEntero() {

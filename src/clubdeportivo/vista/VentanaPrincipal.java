@@ -2,7 +2,7 @@ package clubdeportivo.vista;
 
 import clubdeportivo.excepciones.CupoExcedidoException;
 import clubdeportivo.excepciones.ElementoNoEncontradoException;
-import clubdeportivo.gestion.GestorClub;
+import clubdeportivo.controlador.ControladorClub;
 import clubdeportivo.modelo.Actividad;
 import clubdeportivo.modelo.Deporte;
 import clubdeportivo.modelo.Instructor;
@@ -11,7 +11,6 @@ import clubdeportivo.modelo.Socio;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.List;
 
 /**
  * Interfaz gráfica del sistema (SIA-10), implementada con Swing.
@@ -21,7 +20,7 @@ import java.util.List;
  */
 public class VentanaPrincipal extends JFrame {
 
-    private GestorClub gestor;
+    private ControladorClub controlador;
 
     private DefaultTableModel modeloActividades;
     private JTable tablaActividades;
@@ -33,9 +32,9 @@ public class VentanaPrincipal extends JFrame {
     private DefaultTableModel modeloFiltro;
     private JTable tablaFiltro;
 
-    public VentanaPrincipal(GestorClub gestor) {
+    public VentanaPrincipal(ControladorClub controlador) {
         super("Sistema de Gestión de Actividades en Clubes Deportivos");
-        this.gestor = gestor;
+        this.controlador = controlador;
         initComponents();
         refrescarActividades();
     }
@@ -49,8 +48,41 @@ public class VentanaPrincipal extends JFrame {
         tabs.addTab("Actividades", crearPanelActividades());
         tabs.addTab("Socios", crearPanelSocios());
         tabs.addTab("Cupos disponibles", crearPanelFiltro());
+        tabs.addTab("Reporte", crearPanelReporte());
 
         getContentPane().add(tabs);
+
+        // La ventana es la responsable de guardar los datos al cerrarse,
+        // ya que Main no contiene lógica de negocio ni de persistencia.
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                controlador.guardarYSalir();
+            }
+        });
+    }
+
+    // ==================== PANEL REPORTE (SIA-O2) ====================
+
+    private JPanel crearPanelReporte() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JLabel info = new JLabel("Genera un archivo CSV con el detalle de ocupación de cada actividad,"
+                + " listo para abrir en una planilla de cálculo.", SwingConstants.CENTER);
+        JButton btnGenerar = new JButton("Generar reporte");
+        btnGenerar.addActionListener(e -> {
+            try {
+                controlador.generarReporte();
+                JOptionPane.showMessageDialog(this, "Reporte generado: " + controlador.getNombreArchivoReporte());
+            } catch (java.io.IOException ex) {
+                JOptionPane.showMessageDialog(this, "Error al generar el reporte: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        JPanel centro = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        centro.add(btnGenerar);
+        panel.add(info, BorderLayout.NORTH);
+        panel.add(centro, BorderLayout.CENTER);
+        return panel;
     }
 
     // ==================== PANEL ACTIVIDADES ====================
@@ -84,7 +116,7 @@ public class VentanaPrincipal extends JFrame {
             String codigo = obtenerCodigoSeleccionado();
             if (codigo != null) {
                 try {
-                    dialogoActividad(gestor.buscarActividad(codigo));
+                    dialogoActividad(controlador.buscarActividad(codigo));
                 } catch (ElementoNoEncontradoException ex) {
                     JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -94,7 +126,7 @@ public class VentanaPrincipal extends JFrame {
             String codigo = obtenerCodigoSeleccionado();
             if (codigo != null) {
                 try {
-                    gestor.eliminarActividad(codigo);
+                    controlador.eliminarActividad(codigo);
                     refrescarActividades();
                 } catch (ElementoNoEncontradoException ex) {
                     JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -105,7 +137,7 @@ public class VentanaPrincipal extends JFrame {
             String codigo = JOptionPane.showInputDialog(this, "Código de la actividad a buscar:");
             if (codigo != null) {
                 try {
-                    Actividad a = gestor.buscarActividad(codigo);
+                    Actividad a = controlador.buscarActividad(codigo);
                     JOptionPane.showMessageDialog(this, a.toString(), "Actividad encontrada", JOptionPane.INFORMATION_MESSAGE);
                 } catch (ElementoNoEncontradoException ex) {
                     JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -134,8 +166,8 @@ public class VentanaPrincipal extends JFrame {
         JTextField campoHorario = new JTextField(existente != null ? existente.getHorario() : "");
         JTextField campoCupo = new JTextField(existente != null ? String.valueOf(existente.getCupoMaximo()) : "");
 
-        List<Instructor> instructores = new java.util.ArrayList<>(gestor.listarInstructores());
-        JComboBox<Instructor> comboInstructor = new JComboBox<>(instructores.toArray(new Instructor[0]));
+        Instructor[] instructores = controlador.listarInstructores();
+        JComboBox<Instructor> comboInstructor = new JComboBox<>(instructores);
         if (existente != null && existente.getInstructor() != null) comboInstructor.setSelectedItem(existente.getInstructor());
 
         JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
@@ -154,11 +186,10 @@ public class VentanaPrincipal extends JFrame {
                 int cupo = Integer.parseInt(campoCupo.getText().trim());
                 Instructor instructor = (Instructor) comboInstructor.getSelectedItem();
                 if (existente == null) {
-                    Actividad nueva = new Actividad(campoCodigo.getText().trim(), campoNombre.getText().trim(),
+                    controlador.agregarActividad(campoCodigo.getText().trim(), campoNombre.getText().trim(),
                             (Deporte) comboDeporte.getSelectedItem(), campoHorario.getText().trim(), cupo, instructor);
-                    gestor.agregarActividad(nueva);
                 } else {
-                    gestor.editarActividad(existente.getCodigo(), campoNombre.getText().trim(),
+                    controlador.editarActividad(existente.getCodigo(), campoNombre.getText().trim(),
                             campoHorario.getText().trim(), cupo, instructor);
                 }
                 refrescarActividades();
@@ -172,11 +203,11 @@ public class VentanaPrincipal extends JFrame {
 
     private void refrescarActividades() {
         modeloActividades.setRowCount(0);
-        for (Actividad a : gestor.listarActividades()) {
+        for (Actividad a : controlador.listarActividades()) {
             String instructor = a.getInstructor() != null
                     ? a.getInstructor().getNombre() + " " + a.getInstructor().getApellido() : "Sin asignar";
             modeloActividades.addRow(new Object[]{a.getCodigo(), a.getNombre(), a.getDeporte(),
-                    a.getHorario(), a.getCupoMaximo(), instructor, a.getInscritos().size()});
+                    a.getHorario(), a.getCupoMaximo(), instructor, a.cantidadInscritos()});
         }
     }
 
@@ -227,7 +258,7 @@ public class VentanaPrincipal extends JFrame {
         String codigo = campoCodigoActividadSocios.getText().trim();
         if (codigo.isEmpty()) return;
         try {
-            List<Socio> socios = gestor.listarSociosDeActividad(codigo);
+            Socio[] socios = controlador.listarSociosDeActividad(codigo);
             modeloSocios.setRowCount(0);
             for (Socio s : socios) {
                 modeloSocios.addRow(new Object[]{s.getNumeroSocio(), s.getNombre(), s.getApellido(),
@@ -265,7 +296,7 @@ public class VentanaPrincipal extends JFrame {
                 int edad = Integer.parseInt(campoEdad.getText().trim());
                 Socio s = new Socio(campoNumero.getText().trim(), campoNombre.getText().trim(),
                         campoApellido.getText().trim(), edad, campoEmail.getText().trim(), campoFecha.getText().trim());
-                gestor.inscribirSocio(codigoActividad, s);
+                controlador.inscribirSocio(codigoActividad, s);
                 refrescarSocios();
                 refrescarActividades();
             } catch (NumberFormatException ex) {
@@ -290,7 +321,7 @@ public class VentanaPrincipal extends JFrame {
         String numeroSocio = obtenerNumeroSocioSeleccionado();
         if (numeroSocio == null) return;
         try {
-            Socio actual = gestor.buscarSocio(codigoActividad, numeroSocio);
+            Socio actual = controlador.buscarSocio(codigoActividad, numeroSocio);
             JTextField campoNombre = new JTextField(actual.getNombre());
             JTextField campoApellido = new JTextField(actual.getApellido());
             JTextField campoEdad = new JTextField(String.valueOf(actual.getEdad()));
@@ -305,7 +336,7 @@ public class VentanaPrincipal extends JFrame {
             int resultado = JOptionPane.showConfirmDialog(this, panel, "Editar socio", JOptionPane.OK_CANCEL_OPTION);
             if (resultado == JOptionPane.OK_OPTION) {
                 int edad = Integer.parseInt(campoEdad.getText().trim());
-                gestor.editarSocio(codigoActividad, numeroSocio, campoNombre.getText().trim(),
+                controlador.editarSocio(codigoActividad, numeroSocio, campoNombre.getText().trim(),
                         campoApellido.getText().trim(), edad, campoEmail.getText().trim());
                 refrescarSocios();
             }
@@ -321,7 +352,7 @@ public class VentanaPrincipal extends JFrame {
         String numeroSocio = obtenerNumeroSocioSeleccionado();
         if (numeroSocio == null) return;
         try {
-            gestor.eliminarSocio(codigoActividad, numeroSocio);
+            controlador.eliminarSocio(codigoActividad, numeroSocio);
             refrescarSocios();
             refrescarActividades();
         } catch (ElementoNoEncontradoException ex) {
@@ -334,7 +365,7 @@ public class VentanaPrincipal extends JFrame {
         String numeroSocio = JOptionPane.showInputDialog(this, "Número de socio a buscar:");
         if (numeroSocio == null) return;
         try {
-            Socio s = gestor.buscarSocio(codigoActividad, numeroSocio);
+            Socio s = controlador.buscarSocio(codigoActividad, numeroSocio);
             JOptionPane.showMessageDialog(this, s.mostrarInfo(), "Socio encontrado", JOptionPane.INFORMATION_MESSAGE);
         } catch (ElementoNoEncontradoException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -369,7 +400,7 @@ public class VentanaPrincipal extends JFrame {
         btnFiltrar.addActionListener(e -> {
             String seleccion = (String) comboDeporte.getSelectedItem();
             Deporte filtro = (seleccion == null || seleccion.equals("(Todos)")) ? null : Deporte.valueOf(seleccion);
-            List<Actividad> resultado = gestor.listarActividadesConCupoDisponible(filtro);
+            Actividad[] resultado = controlador.listarActividadesConCupoDisponible(filtro);
             modeloFiltro.setRowCount(0);
             for (Actividad a : resultado) {
                 modeloFiltro.addRow(new Object[]{a.getCodigo(), a.getNombre(), a.getDeporte(),
