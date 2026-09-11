@@ -10,10 +10,7 @@ import clubdeportivo.modelo.Socio;
 
 import java.util.Scanner;
 
-/**
- * Interfaz de consola del sistema (SIA-10). Ofrece, en menús separados,
- * todas las operaciones sobre Actividades y sobre Socios inscritos.
- */
+
 public class MenuConsola {
 
     private ControladorClub controlador;
@@ -47,7 +44,7 @@ public class MenuConsola {
         } while (opcion != 0);
     }
 
-    // ==================== MENÚ ACTIVIDADES ====================
+
 
     private void menuActividades() {
         int opcion;
@@ -143,7 +140,7 @@ public class MenuConsola {
         }
     }
 
-    // ==================== MENÚ SOCIOS ====================
+
 
     private void menuSocios() {
         int opcion;
@@ -263,7 +260,7 @@ public class MenuConsola {
         }
     }
 
-    // ==================== FUNCIONALIDAD PROPIA (SIA-9) ====================
+
 
     private void filtrarCupoDisponible() {
         System.out.println("¿Filtrar por un deporte específico? (S/N)");
@@ -282,7 +279,7 @@ public class MenuConsola {
         }
     }
 
-    // ==================== REPORTE (SIA-O2) ====================
+
 
     private void generarReporte() {
         try {
@@ -293,7 +290,7 @@ public class MenuConsola {
         }
     }
 
-    // ==================== UTILITARIOS ====================
+
 
     private Deporte seleccionarDeporte() {
         Deporte[] valores = Deporte.values();

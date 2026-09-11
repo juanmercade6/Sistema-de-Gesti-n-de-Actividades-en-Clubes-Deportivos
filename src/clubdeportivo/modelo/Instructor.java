@@ -1,9 +1,6 @@
 package clubdeportivo.modelo;
 
-/**
- * Representa a un instructor del club, responsable de dictar una o más
- * {@link Actividad}.
- */
+
 public class Instructor extends Persona {
 
     private String especialidad;
@@ -32,9 +29,7 @@ public class Instructor extends Persona {
         this.sueldoBase = sueldoBase;
     }
 
-    /**
-     * Sobreescritura de mostrarInfo() (SIA-6).
-     */
+
     @Override
     public String mostrarInfo() {
         return "Instructor " + getNombre() + " " + getApellido()
@@ -42,16 +37,12 @@ public class Instructor extends Persona {
                 + " - Sueldo base: $" + sueldoBase;
     }
 
-    /**
-     * Sobrecarga de método - pago simple, sin bonos (SIA-5).
-     */
+
     public double calcularPago() {
         return sueldoBase;
     }
 
-    /**
-     * Sobrecarga de método - pago con bono por cada alumno a cargo (SIA-5).
-     */
+
     public double calcularPago(double bonoPorAlumno, int numeroAlumnos) {
         return sueldoBase + (bonoPorAlumno * numeroAlumnos);
     }

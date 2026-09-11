@@ -11,19 +11,7 @@ import clubdeportivo.persistencia.PersistenciaCSV;
 
 import java.io.IOException;
 
-/**
- * Controlador central del sistema (capa intermedia entre las vistas y el
- * modelo). Tanto la consola (MenuConsola) como la interfaz gráfica
- * (VentanaPrincipal) dependen únicamente de esta clase, nunca de
- * GestorClub directamente. Esto permite que:
- *
- *  - Main.java quede reducido a solo elegir el modo de ejecución y
- *    delegar todo lo demás aquí (no hay lógica de negocio en el main).
- *  - Ninguna vista conozca la Persistencia ni el GestorClub, facilitando
- *    mantener el mismo comportamiento sin importar la interfaz usada.
- *  - Igual que GestorClub, ningún método público de esta clase retorna
- *    una colección: siempre se entregan arreglos.
- */
+
 public class ControladorClub {
 
     private static final String CARPETA_DATOS = "data";
@@ -38,10 +26,7 @@ public class ControladorClub {
         cargarDatos();
     }
 
-    /**
-     * Carga los datos persistidos previamente; si es la primera vez que
-     * se ejecuta el sistema, carga datos de ejemplo (SIA-3).
-     */
+
     private void cargarDatos() {
         if (persistencia.existenDatosPrevios()) {
             persistencia.cargarDatos(gestor);
@@ -50,15 +35,12 @@ public class ControladorClub {
         }
     }
 
-    /**
-     * Guarda el estado completo del sistema. Se debe invocar al salir de
-     * la aplicación, sin importar el modo de interfaz usado.
-     */
+
     public void guardarYSalir() {
         persistencia.guardarDatos(gestor);
     }
 
-    // ==================== ACTIVIDADES ====================
+
 
     public void agregarActividad(String codigo, String nombre, Deporte deporte, String horario,
                                   int cupoMaximo, Instructor instructor) {
@@ -82,13 +64,13 @@ public class ControladorClub {
         gestor.eliminarActividad(codigo);
     }
 
-    // ==================== INSTRUCTORES ====================
+
 
     public Instructor[] listarInstructores() {
         return gestor.listarInstructores();
     }
 
-    // ==================== SOCIOS ====================
+
 
     public void inscribirSocio(String codigoActividad, Socio socio)
             throws ElementoNoEncontradoException, CupoExcedidoException {
@@ -113,19 +95,13 @@ public class ControladorClub {
         gestor.eliminarSocio(codigoActividad, numeroSocio);
     }
 
-    // ==================== FUNCIONALIDAD PROPIA (SIA-9) ====================
+
 
     public Actividad[] listarActividadesConCupoDisponible(Deporte filtroDeporte) {
         return gestor.listarActividadesConCupoDisponible(filtroDeporte);
     }
 
-    // ==================== REPORTE (SIA-O2) ====================
 
-    /**
-     * Genera un reporte CSV independiente de la persistencia, con el
-     * detalle de cada actividad y su ocupación. Es un archivo pensado
-     * para ser abierto en una planilla de cálculo (Excel/LibreOffice).
-     */
     public void generarReporte() throws IOException {
         persistencia.exportarReporte(gestor, ARCHIVO_REPORTE);
     }

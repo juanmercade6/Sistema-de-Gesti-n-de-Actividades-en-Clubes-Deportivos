@@ -5,14 +5,7 @@ import clubdeportivo.excepciones.ElementoNoEncontradoException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Representa una actividad deportiva ofrecida por el club (ej: Fútbol lunes 18:00).
- *
- * Cada actividad mantiene su propia colección de socios inscritos
- * ({@code inscritos}), la cual corresponde a la 2ª colección del sistema,
- * anidada dentro de la 1ª colección (el Map de actividades administrado
- * por GestorClub). Ambas colecciones pertenecen al Java Collections Framework.
- */
+
 public class Actividad {
 
     private String codigo;
@@ -22,7 +15,7 @@ public class Actividad {
     private int cupoMaximo;
     private Instructor instructor;
 
-    // Colección anidada (JCF) - lista de socios inscritos en esta actividad.
+
     private List<Socio> inscritos;
 
     public Actividad(String codigo, String nombre, Deporte deporte, String horario,
@@ -84,35 +77,21 @@ public class Actividad {
         this.instructor = instructor;
     }
 
-    /**
-     * Devuelve los socios inscritos como un arreglo (no se expone la
-     * colección interna para no romper el encapsulamiento ni permitir
-     * que se modifique la lista desde fuera sin pasar por las reglas
-     * de negocio de esta clase).
-     */
     public Socio[] getInscritos() {
         return inscritos.toArray(new Socio[0]);
     }
 
-    /**
-     * Cantidad de socios inscritos actualmente (equivalente a
-     * getInscritos().length, evitando construir el arreglo si solo se
-     * necesita el tamaño).
-     */
+
     public int cantidadInscritos() {
         return inscritos.size();
     }
 
-    /**
-     * Cantidad de cupos aún disponibles en la actividad.
-     */
+
     public int getCupoDisponible() {
         return cupoMaximo - inscritos.size();
     }
 
-    /**
-     * Inscribe un socio en la actividad, validando el cupo máximo.
-     */
+
     public void inscribirSocio(Socio socio) throws CupoExcedidoException {
         if (inscritos.size() >= cupoMaximo) {
             throw new CupoExcedidoException("La actividad '" + nombre
@@ -121,9 +100,7 @@ public class Actividad {
         inscritos.add(socio);
     }
 
-    /**
-     * Busca un socio dentro de esta actividad por su número de socio.
-     */
+
     public Socio buscarSocioPorNumero(String numeroSocio) throws ElementoNoEncontradoException {
         for (Socio s : inscritos) {
             if (s.getNumeroSocio().equalsIgnoreCase(numeroSocio)) {
@@ -134,9 +111,7 @@ public class Actividad {
                 + "' en la actividad '" + nombre + "'.");
     }
 
-    /**
-     * Elimina un socio de la actividad por su número de socio.
-     */
+
     public void eliminarSocio(String numeroSocio) throws ElementoNoEncontradoException {
         Socio s = buscarSocioPorNumero(numeroSocio);
         inscritos.remove(s);

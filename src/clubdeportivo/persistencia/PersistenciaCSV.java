@@ -15,17 +15,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-/**
- * Encargada de la persistencia de datos del sistema (SIA-11) mediante
- * archivos de texto plano en formato CSV, usando un enfoque batch:
- * se cargan todos los datos al iniciar la aplicación y se graban todos
- * los datos al salir de ella.
- *
- * Se usan 3 archivos porque las Actividades (colección 1) contienen,
- * de forma anidada, una lista de Socios inscritos (colección 2); al
- * "aplanar" esa relación en CSV, cada fila de socios.csv representa una
- * inscripción (socio + actividad en la que está inscrito).
- */
+
 public class PersistenciaCSV {
 
     private static final String SEP = ";";
@@ -43,18 +33,12 @@ public class PersistenciaCSV {
         new File(carpetaDatos).mkdirs();
     }
 
-    /**
-     * Indica si ya existen archivos de datos persistidos previamente.
-     */
+
     public boolean existenDatosPrevios() {
         return new File(rutaInstructores).exists() && new File(rutaActividades).exists();
     }
 
-    /**
-     * Carga instructores, actividades y las inscripciones de socios dentro
-     * del GestorClub recibido. Todo el manejo de errores se realiza con
-     * try-catch (SIA-12).
-     */
+
     public void cargarDatos(GestorClub gestor) {
         try (BufferedReader br = new BufferedReader(new FileReader(rutaInstructores))) {
             String linea;
@@ -108,10 +92,7 @@ public class PersistenciaCSV {
         }
     }
 
-    /**
-     * Guarda el estado completo del GestorClub (instructores, actividades
-     * y todas las inscripciones de socios) en los 3 archivos CSV.
-     */
+
     public void guardarDatos(GestorClub gestor) {
         Instructor[] instructores = gestor.listarInstructores();
         Actividad[] actividades = gestor.listarActividades();
@@ -152,11 +133,7 @@ public class PersistenciaCSV {
         }
     }
 
-    /**
-     * Genera un reporte CSV de utilidad para el negocio (distinto de los
-     * archivos de persistencia), con el detalle de ocupación de cada
-     * actividad, pensado para abrirse en una planilla de cálculo.
-     */
+
     public void exportarReporte(GestorClub gestor, String nombreArchivo) throws IOException {
         String ruta = carpetaDatos + File.separator + nombreArchivo;
         new File(carpetaDatos).mkdirs();

@@ -1,11 +1,6 @@
 package clubdeportivo.modelo;
 
-/**
- * Clase abstracta que representa a cualquier persona relacionada con el club.
- * Concentra los datos comunes a {@link Socio} e {@link Instructor}.
- *
- * Todos los atributos son privados y cuentan con getters/setters (SIA-3).
- */
+
 public abstract class Persona {
 
     private String id;
@@ -22,13 +17,10 @@ public abstract class Persona {
         this.email = email;
     }
 
-    /**
-     * Cada subclase debe definir cómo se presenta su información detallada.
-     * Este método es sobreescrito por Socio e Instructor (SIA-6).
-     */
+
     public abstract String mostrarInfo();
 
-    // ----- Getters y Setters -----
+
     public String getId() {
         return id;
     }

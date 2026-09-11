@@ -12,12 +12,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
-/**
- * Interfaz gráfica del sistema (SIA-10), implementada con Swing.
- * Ofrece, en pestañas separadas, la misma funcionalidad completa que la
- * consola: CRUD de Actividades, CRUD de Socios inscritos por actividad,
- * y la funcionalidad propia de filtrado de cupos disponibles.
- */
+
 public class VentanaPrincipal extends JFrame {
 
     private ControladorClub controlador;
@@ -52,8 +47,7 @@ public class VentanaPrincipal extends JFrame {
 
         getContentPane().add(tabs);
 
-        // La ventana es la responsable de guardar los datos al cerrarse,
-        // ya que Main no contiene lógica de negocio ni de persistencia.
+
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
@@ -62,7 +56,7 @@ public class VentanaPrincipal extends JFrame {
         });
     }
 
-    // ==================== PANEL REPORTE (SIA-O2) ====================
+
 
     private JPanel crearPanelReporte() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -85,7 +79,7 @@ public class VentanaPrincipal extends JFrame {
         return panel;
     }
 
-    // ==================== PANEL ACTIVIDADES ====================
+
 
     private JPanel crearPanelActividades() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
@@ -211,7 +205,7 @@ public class VentanaPrincipal extends JFrame {
         }
     }
 
-    // ==================== PANEL SOCIOS ====================
+
 
     private JPanel crearPanelSocios() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
@@ -381,7 +375,7 @@ public class VentanaPrincipal extends JFrame {
         }
     }
 
-    // ==================== PANEL FILTRO (SIA-9) ====================
+
 
     private JPanel crearPanelFiltro() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));

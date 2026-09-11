@@ -7,15 +7,6 @@ import clubdeportivo.vista.VentanaPrincipal;
 import javax.swing.SwingUtilities;
 import java.util.Scanner;
 
-/**
- * Punto de entrada del Sistema de Gestión de Actividades en Clubes
- * Deportivos.
- *
- * Esta clase se mantiene deliberadamente mínima: solo pregunta el modo
- * de ejecución (consola o ventana, SIA-10) y delega todo el resto —
- * carga de datos, lógica de negocio y persistencia— al ControladorClub
- * y a las vistas correspondientes. No contiene reglas de negocio.
- */
 public class Main {
 
     public static void main(String[] args) {

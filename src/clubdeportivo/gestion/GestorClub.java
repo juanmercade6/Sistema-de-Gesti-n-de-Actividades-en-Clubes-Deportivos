@@ -12,27 +12,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Clase central del sistema (capa de modelo/negocio). Administra la
- * colección principal de Actividades (Map, JCF) y, a través de cada
- * Actividad, la colección anidada de Socios inscritos (List, JCF).
- *
- * IMPORTANTE: por buenas prácticas de encapsulamiento, ningún método
- * público de esta clase retorna una colección (List/Map/Collection);
- * las colecciones internas jamás se exponen hacia afuera. Cuando se
- * necesita entregar varios elementos, se retorna un arreglo construido
- * a partir de la colección interna.
- *
- * Todos los atributos son privados con sus respectivos accesos (SIA-3).
- */
+
 public class GestorClub {
 
-    // Colección 1 (JCF - Map): clave = código de actividad.
+
     private Map<String, Actividad> actividades;
 
-    // Repositorio auxiliar de instructores (no es una de las 2 colecciones
-    // exigidas por el enunciado, pero facilita administrarlos de forma
-    // independiente; tampoco se expone directamente hacia afuera).
+
     private Map<String, Instructor> instructores;
 
     public GestorClub() {
@@ -40,13 +26,7 @@ public class GestorClub {
         this.instructores = new LinkedHashMap<>();
     }
 
-    // ==================== ACTIVIDADES (Colección 1) ====================
 
-    /**
-     * Normaliza un código de actividad (sin espacios extra y en mayúsculas)
-     * para que la búsqueda no dependa de que el usuario escriba
-     * exactamente "A001" y no "a001" o " a001 ".
-     */
     private String normalizarCodigo(String codigo) {
         return codigo == null ? null : codigo.trim().toUpperCase();
     }
@@ -55,10 +35,7 @@ public class GestorClub {
         actividades.put(normalizarCodigo(actividad.getCodigo()), actividad);
     }
 
-    /**
-     * Devuelve todas las actividades como arreglo (no se retorna la
-     * colección interna).
-     */
+
     public Actividad[] listarActividades() {
         return actividades.values().toArray(new Actividad[0]);
     }
@@ -85,20 +62,17 @@ public class GestorClub {
     }
 
     public void eliminarActividad(String codigo) throws ElementoNoEncontradoException {
-        buscarActividad(codigo); // valida existencia
+        buscarActividad(codigo); 
         actividades.remove(normalizarCodigo(codigo));
     }
 
-    // ==================== INSTRUCTORES (repositorio auxiliar) ====================
+
 
     public void agregarInstructor(Instructor instructor) {
         instructores.put(instructor.getId(), instructor);
     }
 
-    /**
-     * Devuelve todos los instructores como arreglo (no se retorna la
-     * colección interna).
-     */
+
     public Instructor[] listarInstructores() {
         return instructores.values().toArray(new Instructor[0]);
     }
@@ -111,7 +85,7 @@ public class GestorClub {
         return i;
     }
 
-    // ==================== SOCIOS (Colección 2, anidada) ====================
+
 
     public void inscribirSocio(String codigoActividad, Socio socio)
             throws ElementoNoEncontradoException, CupoExcedidoException {
@@ -119,10 +93,7 @@ public class GestorClub {
         a.inscribirSocio(socio);
     }
 
-    /**
-     * Devuelve los socios inscritos en una actividad como arreglo
-     * (la Actividad ya se encarga de no exponer su List interna).
-     */
+
     public Socio[] listarSociosDeActividad(String codigoActividad) throws ElementoNoEncontradoException {
         Actividad a = buscarActividad(codigoActividad);
         return a.getInscritos();
@@ -148,21 +119,7 @@ public class GestorClub {
         a.eliminarSocio(numeroSocio);
     }
 
-    // ==================== FUNCIONALIDAD PROPIA (SIA-9) ====================
 
-    /**
-     * Filtra el subconjunto de actividades que tienen cupos disponibles,
-     * opcionalmente acotado a un deporte específico. Es la funcionalidad
-     * propia de utilidad para el negocio exigida en SIA-9 (distinta de
-     * inserción/edición/eliminación/reportes), pensada para que el club
-     * pueda promocionar rápidamente los cupos abiertos.
-     *
-     * El filtrado se arma internamente con una List auxiliar (para no
-     * depender de un arreglo de tamaño fijo mientras se recorre), pero
-     * el método retorna el resultado ya convertido a arreglo.
-     *
-     * @param filtroDeporte si es null, no filtra por deporte.
-     */
     public Actividad[] listarActividadesConCupoDisponible(Deporte filtroDeporte) {
         List<Actividad> resultado = new ArrayList<>();
         for (Actividad a : actividades.values()) {
@@ -175,19 +132,7 @@ public class GestorClub {
         return resultado.toArray(new Actividad[0]);
     }
 
-    // ==================== DATOS INICIALES (SIA-3) ====================
 
-    /**
-     * Carga datos de ejemplo que permiten ejecutar cualquiera de las
-     * funcionalidades del sistema sin depender de archivos externos.
-     * Se invoca únicamente si no existen datos persistidos previamente.
-     *
-     * Se cargan bastantes datos de ejemplo (9 instructores, 10 actividades
-     * cubriendo todos los deportes —incluyendo Powerlifting y Boxeo— y
-     * cerca de 30 socios distribuidos entre ellas) para que el sistema
-     * tenga, desde el primer arranque, un conjunto de datos representativo,
-     * similar a una tabla de Excel/CSV ya poblada.
-     */
     public void cargarDatosIniciales() {
         Instructor i1 = new Instructor("I001", "Marcela", "Rojas", 34, "marcela.rojas@club.cl", "Fútbol", 650000);
         Instructor i2 = new Instructor("I002", "Pedro", "Salinas", 41, "pedro.salinas@club.cl", "Natación", 700000);
@@ -269,7 +214,7 @@ public class GestorClub {
             inscribirSocio("A010", new Socio("S028", "Joaquín", "Pizarro", 27, "joaquin.pizarro@mail.cl", "2026-03-28"));
             inscribirSocio("A010", new Socio("S029", "Trinidad", "Guzmán", 21, "trinidad.guzman@mail.cl", "2026-03-29"));
         } catch (ElementoNoEncontradoException | CupoExcedidoException e) {
-            // No debería ocurrir con los datos de ejemplo controlados.
+
             System.out.println("Error inesperado al cargar datos iniciales: " + e.getMessage());
         }
     }
