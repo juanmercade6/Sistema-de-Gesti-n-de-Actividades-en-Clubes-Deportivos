@@ -402,7 +402,7 @@ public class VentanaPrincipal extends JFrame {
 
         btnFiltrar.addActionListener(e -> {
             String seleccion = (String) comboDeporte.getSelectedItem();
-            Deporte filtro = (seleccion == null || seleccion.equals("(Todos)")) ? null : Deporte.valueOf(seleccion);
+            Deporte filtro = (seleccion == null || seleccion.equals("(Todos )")) ? null : Deporte.valueOf(seleccion);
             Actividad[] resultado = controlador.listarActividadesConCupoDisponible(filtro);
             modeloFiltro.setRowCount(0);
             for (Actividad a : resultado) {
