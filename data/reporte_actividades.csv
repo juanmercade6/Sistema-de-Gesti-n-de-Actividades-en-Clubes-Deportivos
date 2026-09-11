@@ -1,9 +1,0 @@
-Codigo;Nombre;Deporte;Horario;Instructor;CupoMaximo;Inscritos;CupoDisponible
-A001;Fútbol Formativo;FUTBOL;Lunes 18:00-19:30;Marcela Rojas;6;4;2
-A002;Natación Adultos;NATACION;Martes 07:00-08:00;Pedro Salinas;5;3;2
-A003;Crossfit Intensivo;CROSSFIT;Miércoles 19:00-20:00;Valentina Ibáñez;4;2;2
-A004;Básquetbol Damas;BASQUETBOL;Jueves 18:30-20:00;Rodrigo Contreras;5;3;2
-A005;Vóleibol Mixto;VOLEIBOL;Viernes 19:00-20:30;Javiera Soto;6;4;2
-A006;Tenis Principiantes;TENIS;Sábado 09:00-10:30;Andrés Herrera;3;2;1
-A007;Atletismo Fondo;ATLETISMO;Lunes 07:00-08:00;Constanza Reyes;5;3;2
-A008;Fútbol Senior;FUTBOL;Miércoles 20:00-21:30;Marcela Rojas;4;2;2
