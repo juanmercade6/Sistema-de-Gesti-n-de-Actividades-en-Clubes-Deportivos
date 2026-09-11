@@ -42,8 +42,17 @@ public class GestorClub {
 
     // ==================== ACTIVIDADES (Colección 1) ====================
 
+    /**
+     * Normaliza un código de actividad (sin espacios extra y en mayúsculas)
+     * para que la búsqueda no dependa de que el usuario escriba
+     * exactamente "A001" y no "a001" o " a001 ".
+     */
+    private String normalizarCodigo(String codigo) {
+        return codigo == null ? null : codigo.trim().toUpperCase();
+    }
+
     public void agregarActividad(Actividad actividad) {
-        actividades.put(actividad.getCodigo(), actividad);
+        actividades.put(normalizarCodigo(actividad.getCodigo()), actividad);
     }
 
     /**
@@ -59,7 +68,7 @@ public class GestorClub {
     }
 
     public Actividad buscarActividad(String codigo) throws ElementoNoEncontradoException {
-        Actividad a = actividades.get(codigo);
+        Actividad a = actividades.get(normalizarCodigo(codigo));
         if (a == null) {
             throw new ElementoNoEncontradoException("No existe una actividad con código '" + codigo + "'.");
         }
@@ -77,7 +86,7 @@ public class GestorClub {
 
     public void eliminarActividad(String codigo) throws ElementoNoEncontradoException {
         buscarActividad(codigo); // valida existencia
-        actividades.remove(codigo);
+        actividades.remove(normalizarCodigo(codigo));
     }
 
     // ==================== INSTRUCTORES (repositorio auxiliar) ====================
@@ -173,11 +182,11 @@ public class GestorClub {
      * funcionalidades del sistema sin depender de archivos externos.
      * Se invoca únicamente si no existen datos persistidos previamente.
      *
-     * Se cargan bastantes datos de ejemplo (7 instructores, 8 actividades
-     * cubriendo todos los deportes, y más de 20 socios distribuidos entre
-     * ellas) para que el sistema tenga, desde el primer arranque, un
-     * conjunto de datos representativo, similar a una tabla de Excel/CSV
-     * ya poblada.
+     * Se cargan bastantes datos de ejemplo (9 instructores, 10 actividades
+     * cubriendo todos los deportes —incluyendo Powerlifting y Boxeo— y
+     * cerca de 30 socios distribuidos entre ellas) para que el sistema
+     * tenga, desde el primer arranque, un conjunto de datos representativo,
+     * similar a una tabla de Excel/CSV ya poblada.
      */
     public void cargarDatosIniciales() {
         Instructor i1 = new Instructor("I001", "Marcela", "Rojas", 34, "marcela.rojas@club.cl", "Fútbol", 650000);
@@ -187,6 +196,8 @@ public class GestorClub {
         Instructor i5 = new Instructor("I005", "Javiera", "Soto", 26, "javiera.soto@club.cl", "Vóleibol", 580000);
         Instructor i6 = new Instructor("I006", "Andrés", "Herrera", 45, "andres.herrera@club.cl", "Tenis", 690000);
         Instructor i7 = new Instructor("I007", "Constanza", "Reyes", 31, "constanza.reyes@club.cl", "Atletismo", 610000);
+        Instructor i8 = new Instructor("I008", "Maximiliano", "Vega", 33, "maximiliano.vega@club.cl", "Powerlifting", 640000);
+        Instructor i9 = new Instructor("I009", "Camila", "Godoy", 28, "camila.godoy@club.cl", "Boxeo", 630000);
         agregarInstructor(i1);
         agregarInstructor(i2);
         agregarInstructor(i3);
@@ -194,6 +205,8 @@ public class GestorClub {
         agregarInstructor(i5);
         agregarInstructor(i6);
         agregarInstructor(i7);
+        agregarInstructor(i8);
+        agregarInstructor(i9);
 
         Actividad act1 = new Actividad("A001", "Fútbol Formativo", Deporte.FUTBOL, "Lunes 18:00-19:30", 6, i1);
         Actividad act2 = new Actividad("A002", "Natación Adultos", Deporte.NATACION, "Martes 07:00-08:00", 5, i2);
@@ -203,6 +216,8 @@ public class GestorClub {
         Actividad act6 = new Actividad("A006", "Tenis Principiantes", Deporte.TENIS, "Sábado 09:00-10:30", 3, i6);
         Actividad act7 = new Actividad("A007", "Atletismo Fondo", Deporte.ATLETISMO, "Lunes 07:00-08:00", 5, i7);
         Actividad act8 = new Actividad("A008", "Fútbol Senior", Deporte.FUTBOL, "Miércoles 20:00-21:30", 4, i1);
+        Actividad act9 = new Actividad("A009", "Powerlifting Básico", Deporte.POWERLIFTING, "Martes 19:00-20:30", 5, i8);
+        Actividad act10 = new Actividad("A010", "Boxeo Recreativo", Deporte.BOXEO, "Jueves 20:00-21:00", 6, i9);
         agregarActividad(act1);
         agregarActividad(act2);
         agregarActividad(act3);
@@ -211,6 +226,8 @@ public class GestorClub {
         agregarActividad(act6);
         agregarActividad(act7);
         agregarActividad(act8);
+        agregarActividad(act9);
+        agregarActividad(act10);
 
         try {
             inscribirSocio("A001", new Socio("S001", "Camila", "Fuentes", 22, "camila.fuentes@mail.cl", "2026-03-01"));
@@ -243,6 +260,14 @@ public class GestorClub {
 
             inscribirSocio("A008", new Socio("S022", "Rocío", "Sepúlveda", 38, "rocio.sepulveda@mail.cl", "2026-03-22"));
             inscribirSocio("A008", new Socio("S023", "Hernán", "Toro", 42, "hernan.toro@mail.cl", "2026-03-23"));
+
+            inscribirSocio("A009", new Socio("S024", "Ricardo", "Aguilera", 29, "ricardo.aguilera@mail.cl", "2026-03-24"));
+            inscribirSocio("A009", new Socio("S025", "Paula", "Cornejo", 26, "paula.cornejo@mail.cl", "2026-03-25"));
+            inscribirSocio("A009", new Socio("S026", "Esteban", "Miranda", 31, "esteban.miranda@mail.cl", "2026-03-26"));
+
+            inscribirSocio("A010", new Socio("S027", "Francisca", "Leiva", 24, "francisca.leiva@mail.cl", "2026-03-27"));
+            inscribirSocio("A010", new Socio("S028", "Joaquín", "Pizarro", 27, "joaquin.pizarro@mail.cl", "2026-03-28"));
+            inscribirSocio("A010", new Socio("S029", "Trinidad", "Guzmán", 21, "trinidad.guzman@mail.cl", "2026-03-29"));
         } catch (ElementoNoEncontradoException | CupoExcedidoException e) {
             // No debería ocurrir con los datos de ejemplo controlados.
             System.out.println("Error inesperado al cargar datos iniciales: " + e.getMessage());

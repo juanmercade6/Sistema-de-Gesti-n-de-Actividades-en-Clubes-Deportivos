@@ -1,10 +1,3 @@
-package clubdeportivo.modelo;
-
-/**
- * Clase abstracta que representa a cualquier persona relacionada con el club.
- * Concentra los datos comunes a {@link Socio} e {@link Instructor}.
- *
- * Todos los atributos son privados y cuentan con getters/setters (SIA-3).
  */
 public abstract class Persona {
 

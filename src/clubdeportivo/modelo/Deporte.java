@@ -12,5 +12,7 @@ public enum Deporte {
     NATACION,
     TENIS,
     ATLETISMO,
-    CROSSFIT
+    CROSSFIT,
+    POWERLIFTING,
+    BOXEO
 }

@@ -256,7 +256,11 @@ public class VentanaPrincipal extends JFrame {
 
     private void refrescarSocios() {
         String codigo = campoCodigoActividadSocios.getText().trim();
-        if (codigo.isEmpty()) return;
+        if (codigo.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingrese el código de una actividad antes de cargar sus socios.",
+                    "Falta el código", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         try {
             Socio[] socios = controlador.listarSociosDeActividad(codigo);
             modeloSocios.setRowCount(0);
@@ -264,7 +268,12 @@ public class VentanaPrincipal extends JFrame {
                 modeloSocios.addRow(new Object[]{s.getNumeroSocio(), s.getNombre(), s.getApellido(),
                         s.getEdad(), s.getEmail(), s.getFechaInscripcion()});
             }
+            if (socios.length == 0) {
+                JOptionPane.showMessageDialog(this, "La actividad '" + codigo + "' no tiene socios inscritos todavía.",
+                        "Sin socios", JOptionPane.INFORMATION_MESSAGE);
+            }
         } catch (ElementoNoEncontradoException ex) {
+            modeloSocios.setRowCount(0);
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
