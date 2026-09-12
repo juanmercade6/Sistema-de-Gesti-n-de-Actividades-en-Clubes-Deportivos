@@ -18,7 +18,7 @@ Este sistema centraliza esa gestión, valida automáticamente el cupo máximo al
 CRUD completo de Actividades: agregar, listar, editar, eliminar y buscar.
 CRUD de Socios inscritos por actividad: inscribir, listar, editar, eliminar y buscar.
 Validación de cupo máximo al inscribir un socio (CupoExcedidoException).
-Validación de existencia al buscar/editar/eliminar actividades o socios (ElementoNoEncontradaException).
+Validación de existencia al buscar/editar/eliminar actividades o socios (ElementoNoEncontradoException).
 Filtro de cupos disponibles por deporte — funcionalidad propia orientada al negocio.
 Gestión de instructores con cálculo de pago (sueldo base y pago con bono por alumno a cargo).
 Persistencia batch en CSV: carga los datos al iniciar y los guarda al salir.
@@ -34,7 +34,7 @@ Colecciones (JCF): GestorClub administra un Map<String, Actividad> (y un Map<Str
 Programación defensiva: ningún método público retorna una colección (List/Map) directamente; siempre se entrega un arreglo (Actividad[], Socio[], Instructor[]), evitando que otras capas modifiquen el estado interno sin pasar por las reglas de negocio.
 Sobrecarga de métodos: Socio.generarComprobante() / generarComprobante(String) e Instructor.calcularPago() / calcularPago(double, int).
 Sobreescritura de métodos: mostrarInfo() en Socio e Instructor, y toString() en Persona y Actividad.
-Excepciones propias: ElementoNoEncontradaException y CupoExcedidoException, manejadas con try-catch en las vistas.
+Excepciones propias: ElementoNoEncontradoException y CupoExcedidoException, manejadas con try-catch en las vistas.
 Arquitectura en capas: modelo → gestión/negocio → controlador → persistencia / vista, de modo que tanto la consola como la ventana consumen únicamente ControladorClub.
 🚀 Cómo ejecutar el proyecto
 Requisitos
