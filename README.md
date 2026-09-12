@@ -25,37 +25,7 @@ Persistencia batch en CSV: carga los datos al iniciar y los guarda al salir.
 Exportación de reportes en CSV con el detalle de ocupación de cada actividad.
 Doble interfaz de usuario: consola y ventana (Swing), con la misma lógica de negocio.
 
-🗂️ Estructura del proyecto:
 
-ClubDeportivoSIA/
-├── src/clubdeportivo/
-│   ├── Main.java                    Punto de entrada: solo elige consola/ventana
-│   │                                 y delega todo al controlador
-│   ├── modelo/
-│   │   ├── Persona.java             Clase abstracta base (id, nombre, apellido, edad, email)
-│   │   ├── Socio.java               Hereda de Persona. Sobreescribe mostrarInfo()
-│   │   │                            y sobrecarga generarComprobante()
-│   │   ├── Instructor.java          Hereda de Persona. Sobreescribe mostrarInfo()
-│   │   │                            y sobrecarga calcularPago()
-│   │   ├── Actividad.java           Contiene la colección anidada de inscritos (List<Socio>)
-│   │   └── Deporte.java             Enum de deportes ofrecidos por el club
-│   ├── excepciones/
-│   │   ├── ElementoNoEncontradaException.java
-│   │   └── CupoExcedidoException.java
-│   ├── gestion/
-│   │   └── GestorClub.java          Colección principal (Map<String,Actividad>) y lógica de negocio
-│   ├── controlador/
-│   │   └── ControladorClub.java     Única puerta de entrada al modelo desde las vistas
-│   ├── persistencia/
-│   │   └── PersistenciaCSV.java     Carga/guarda datos en CSV (batch) + exportación de reportes
-│   └── vista/
-│       ├── MenuConsola.java         Interfaz de consola
-│       └── VentanaPrincipal.java    Interfaz gráfica (Swing)
-├── data/
-│   ├── instructores.csv
-│   ├── actividades.csv
-│   └── socios.csv
-└── README.md
 
 🧩 Diseño y buenas prácticas
 Encapsulamiento: todos los atributos son privados con sus respectivos getters/setters.
