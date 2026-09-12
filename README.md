@@ -1,6 +1,6 @@
 🏆 Sistema de Gestión de Actividades en Clubes Deportivos
 
-Proyecto SIA (Sistema de Información) de la asignatura INF2236 - Programación Avanzada, Pontificia Universidad Católica de Valparaíso — Periodo 2026-1.
+Proyecto SIA (Sistema de Información) - Programación Avanzada, Pontificia Universidad Católica de Valparaíso
 
 Sistema de escritorio en Java que permite a un club deportivo administrar su catálogo de actividades (fútbol, natación, crossfit, básquetbol, vóleibol, tenis, atletismo, powerlifting y boxeo), controlar el cupo disponible de cada una, gestionar a sus instructores y llevar la inscripción de sus socios.
 
@@ -36,6 +36,7 @@ Sobrecarga de métodos: Socio.generarComprobante() / generarComprobante(String) 
 Sobreescritura de métodos: mostrarInfo() en Socio e Instructor, y toString() en Persona y Actividad.
 Excepciones propias: ElementoNoEncontradoException y CupoExcedidoException, manejadas con try-catch en las vistas.
 Arquitectura en capas: modelo → gestión/negocio → controlador → persistencia / vista, de modo que tanto la consola como la ventana consumen únicamente ControladorClub.
+
 🚀 Cómo ejecutar el proyecto
 Requisitos
 Java JDK 8 u 11.
