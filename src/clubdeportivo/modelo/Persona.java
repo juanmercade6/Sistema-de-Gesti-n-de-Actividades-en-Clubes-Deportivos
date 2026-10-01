@@ -3,6 +3,9 @@ package clubdeportivo.modelo;
 
 public abstract class Persona {
 
+    private static final int EDAD_MINIMA = 0;
+    private static final int EDAD_MAXIMA = 120;
+
     private String id;
     private String nombre;
     private String apellido;
@@ -10,6 +13,11 @@ public abstract class Persona {
     private String email;
 
     public Persona(String id, String nombre, String apellido, int edad, String email) {
+        validarTextoNoVacio(nombre, "El nombre no puede estar vacío.");
+        validarTextoNoVacio(apellido, "El apellido no puede estar vacío.");
+        validarEdad(edad);
+        validarEmail(email);
+
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -19,6 +27,27 @@ public abstract class Persona {
 
 
     public abstract String mostrarInfo();
+
+
+
+    private static void validarTextoNoVacio(String valor, String mensaje) {
+        if (valor == null || valor.trim().isEmpty()) {
+            throw new IllegalArgumentException(mensaje);
+        }
+    }
+
+    private static void validarEdad(int edad) {
+        if (edad < EDAD_MINIMA || edad > EDAD_MAXIMA) {
+            throw new IllegalArgumentException(
+                    "La edad debe estar entre " + EDAD_MINIMA + " y " + EDAD_MAXIMA + " años.");
+        }
+    }
+
+    private static void validarEmail(String email) {
+        if (email == null || !email.contains("@") || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("El email no tiene un formato válido.");
+        }
+    }
 
 
     public String getId() {
@@ -34,6 +63,7 @@ public abstract class Persona {
     }
 
     public void setNombre(String nombre) {
+        validarTextoNoVacio(nombre, "El nombre no puede estar vacío.");
         this.nombre = nombre;
     }
 
@@ -42,6 +72,7 @@ public abstract class Persona {
     }
 
     public void setApellido(String apellido) {
+        validarTextoNoVacio(apellido, "El apellido no puede estar vacío.");
         this.apellido = apellido;
     }
 
@@ -50,6 +81,7 @@ public abstract class Persona {
     }
 
     public void setEdad(int edad) {
+        validarEdad(edad);
         this.edad = edad;
     }
 
@@ -58,6 +90,7 @@ public abstract class Persona {
     }
 
     public void setEmail(String email) {
+        validarEmail(email);
         this.email = email;
     }
 

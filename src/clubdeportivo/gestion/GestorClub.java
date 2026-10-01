@@ -27,6 +27,7 @@ public class GestorClub {
     }
 
 
+
     private String normalizarCodigo(String codigo) {
         return codigo == null ? null : codigo.trim().toUpperCase();
     }
@@ -44,6 +45,7 @@ public class GestorClub {
         return actividades.size();
     }
 
+
     public Actividad buscarActividad(String codigo) throws ElementoNoEncontradoException {
         Actividad a = actividades.get(normalizarCodigo(codigo));
         if (a == null) {
@@ -51,6 +53,7 @@ public class GestorClub {
         }
         return a;
     }
+
 
     public void editarActividad(String codigo, String nuevoNombre, String nuevoHorario,
                                  int nuevoCupo, Instructor nuevoInstructor) throws ElementoNoEncontradoException {
@@ -61,8 +64,9 @@ public class GestorClub {
         a.setInstructor(nuevoInstructor);
     }
 
+
     public void eliminarActividad(String codigo) throws ElementoNoEncontradoException {
-        buscarActividad(codigo); 
+        buscarActividad(codigo); // valida existencia
         actividades.remove(normalizarCodigo(codigo));
     }
 
@@ -77,6 +81,7 @@ public class GestorClub {
         return instructores.values().toArray(new Instructor[0]);
     }
 
+
     public Instructor buscarInstructor(String id) throws ElementoNoEncontradoException {
         Instructor i = instructores.get(id);
         if (i == null) {
@@ -85,6 +90,16 @@ public class GestorClub {
         return i;
     }
 
+
+    public int contarAlumnosDeInstructor(Instructor instructor) {
+        int total = 0;
+        for (Actividad a : actividades.values()) {
+            if (a.getInstructor() != null && a.getInstructor().getId().equals(instructor.getId())) {
+                total += a.cantidadInscritos();
+            }
+        }
+        return total;
+    }
 
 
     public void inscribirSocio(String codigoActividad, Socio socio)
@@ -99,10 +114,12 @@ public class GestorClub {
         return a.getInscritos();
     }
 
+
     public Socio buscarSocio(String codigoActividad, String numeroSocio) throws ElementoNoEncontradoException {
         Actividad a = buscarActividad(codigoActividad);
         return a.buscarSocioPorNumero(numeroSocio);
     }
+
 
     public void editarSocio(String codigoActividad, String numeroSocio, String nuevoNombre,
                              String nuevoApellido, int nuevaEdad, String nuevoEmail)
@@ -113,6 +130,7 @@ public class GestorClub {
         s.setEdad(nuevaEdad);
         s.setEmail(nuevoEmail);
     }
+
 
     public void eliminarSocio(String codigoActividad, String numeroSocio) throws ElementoNoEncontradoException {
         Actividad a = buscarActividad(codigoActividad);
@@ -214,7 +232,6 @@ public class GestorClub {
             inscribirSocio("A010", new Socio("S028", "Joaquín", "Pizarro", 27, "joaquin.pizarro@mail.cl", "2026-03-28"));
             inscribirSocio("A010", new Socio("S029", "Trinidad", "Guzmán", 21, "trinidad.guzman@mail.cl", "2026-03-29"));
         } catch (ElementoNoEncontradoException | CupoExcedidoException e) {
-
             System.out.println("Error inesperado al cargar datos iniciales: " + e.getMessage());
         }
     }

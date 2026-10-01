@@ -20,6 +20,13 @@ public class Actividad {
 
     public Actividad(String codigo, String nombre, Deporte deporte, String horario,
                       int cupoMaximo, Instructor instructor) {
+        validarTexto(codigo, "El código de la actividad no puede estar vacío.");
+        validarTexto(nombre, "El nombre de la actividad no puede estar vacío.");
+        validarTexto(horario, "El horario no puede estar vacío.");
+        validarCupo(cupoMaximo);
+        if (deporte == null) {
+            throw new IllegalArgumentException("Debe seleccionar un deporte.");
+        }
         this.codigo = codigo;
         this.nombre = nombre;
         this.deporte = deporte;
@@ -29,11 +36,24 @@ public class Actividad {
         this.inscritos = new ArrayList<>();
     }
 
+    private static void validarTexto(String valor, String mensaje) {
+        if (valor == null || valor.trim().isEmpty()) {
+            throw new IllegalArgumentException(mensaje);
+        }
+    }
+
+    private static void validarCupo(int cupo) {
+        if (cupo <= 0) {
+            throw new IllegalArgumentException("El cupo máximo debe ser mayor a 0.");
+        }
+    }
+
     public String getCodigo() {
         return codigo;
     }
 
     public void setCodigo(String codigo) {
+        validarTexto(codigo, "El código de la actividad no puede estar vacío.");
         this.codigo = codigo;
     }
 
@@ -42,6 +62,7 @@ public class Actividad {
     }
 
     public void setNombre(String nombre) {
+        validarTexto(nombre, "El nombre de la actividad no puede estar vacío.");
         this.nombre = nombre;
     }
 
@@ -50,6 +71,9 @@ public class Actividad {
     }
 
     public void setDeporte(Deporte deporte) {
+        if (deporte == null) {
+            throw new IllegalArgumentException("Debe seleccionar un deporte.");
+        }
         this.deporte = deporte;
     }
 
@@ -58,6 +82,7 @@ public class Actividad {
     }
 
     public void setHorario(String horario) {
+        validarTexto(horario, "El horario no puede estar vacío.");
         this.horario = horario;
     }
 
@@ -66,6 +91,7 @@ public class Actividad {
     }
 
     public void setCupoMaximo(int cupoMaximo) {
+        validarCupo(cupoMaximo);
         this.cupoMaximo = cupoMaximo;
     }
 
@@ -76,6 +102,7 @@ public class Actividad {
     public void setInstructor(Instructor instructor) {
         this.instructor = instructor;
     }
+
 
     public Socio[] getInscritos() {
         return inscritos.toArray(new Socio[0]);

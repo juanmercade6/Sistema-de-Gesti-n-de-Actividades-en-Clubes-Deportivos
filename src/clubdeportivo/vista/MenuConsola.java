@@ -1,17 +1,20 @@
 package clubdeportivo.vista;
 
+import clubdeportivo.controlador.ControladorClub;
 import clubdeportivo.excepciones.CupoExcedidoException;
 import clubdeportivo.excepciones.ElementoNoEncontradoException;
-import clubdeportivo.controlador.ControladorClub;
 import clubdeportivo.modelo.Actividad;
 import clubdeportivo.modelo.Deporte;
 import clubdeportivo.modelo.Instructor;
 import clubdeportivo.modelo.Socio;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 
 public class MenuConsola {
+
+    private static final double BONO_POR_ALUMNO = 5000;
 
     private ControladorClub controlador;
     private Scanner sc;
@@ -28,7 +31,8 @@ public class MenuConsola {
             System.out.println("1. Gestión de Actividades");
             System.out.println("2. Gestión de Socios (inscripciones)");
             System.out.println("3. Actividades con cupos disponibles (filtro por deporte)");
-            System.out.println("4. Generar reporte (CSV)");
+            System.out.println("4. Instructores y cálculo de pago");
+            System.out.println("5. Generar reporte (CSV)");
             System.out.println("0. Guardar y salir");
             System.out.print("Seleccione una opción: ");
             opcion = leerEntero();
@@ -37,7 +41,8 @@ public class MenuConsola {
                 case 1: menuActividades(); break;
                 case 2: menuSocios(); break;
                 case 3: filtrarCupoDisponible(); break;
-                case 4: generarReporte(); break;
+                case 4: menuInstructores(); break;
+                case 5: generarReporte(); break;
                 case 0: System.out.println("Guardando datos y saliendo..."); break;
                 default: System.out.println("Opción inválida.");
             }
@@ -87,8 +92,9 @@ public class MenuConsola {
 
             controlador.agregarActividad(codigo, nombre, deporte, horario, cupo, instructor);
             System.out.println("Actividad agregada correctamente.");
-        } catch (Exception e) {
-            System.out.println("Error al agregar actividad: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+
+            System.out.println("No se pudo agregar la actividad: " + e.getMessage());
         }
     }
 
@@ -115,6 +121,8 @@ public class MenuConsola {
             System.out.println("Actividad editada correctamente.");
         } catch (ElementoNoEncontradoException e) {
             System.out.println("Error: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Datos inválidos: " + e.getMessage());
         }
     }
 
@@ -122,6 +130,16 @@ public class MenuConsola {
         try {
             System.out.print("Código de la actividad a eliminar: ");
             String codigo = sc.nextLine();
+
+
+            Actividad a = controlador.buscarActividad(codigo);
+            System.out.print("¿Está seguro de eliminar '" + a.getNombre() + "'? (S/N): ");
+            String resp = sc.nextLine();
+            if (!resp.trim().equalsIgnoreCase("S")) {
+                System.out.println("Eliminación cancelada.");
+                return;
+            }
+
             controlador.eliminarActividad(codigo);
             System.out.println("Actividad eliminada correctamente.");
         } catch (ElementoNoEncontradoException e) {
@@ -189,9 +207,13 @@ public class MenuConsola {
 
             Actividad a = controlador.buscarActividad(codigoActividad);
             System.out.println("Socio inscrito correctamente.");
-            System.out.println(s.generarComprobante(a.getNombre()));
+
+            System.out.println(s.generarComprobante(a, true));
         } catch (ElementoNoEncontradoException | CupoExcedidoException e) {
             System.out.println("Error: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+
+            System.out.println("Datos del socio inválidos: " + e.getMessage());
         }
     }
 
@@ -231,6 +253,8 @@ public class MenuConsola {
             System.out.println("Socio editado correctamente.");
         } catch (ElementoNoEncontradoException e) {
             System.out.println("Error: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Datos inválidos: " + e.getMessage());
         }
     }
 
@@ -240,6 +264,16 @@ public class MenuConsola {
             String codigoActividad = sc.nextLine();
             System.out.print("Número de socio a eliminar: ");
             String numeroSocio = sc.nextLine();
+
+
+            Socio s = controlador.buscarSocio(codigoActividad, numeroSocio);
+            System.out.print("¿Está seguro de eliminar a " + s.getNombre() + " " + s.getApellido() + "? (S/N): ");
+            String resp = sc.nextLine();
+            if (!resp.trim().equalsIgnoreCase("S")) {
+                System.out.println("Eliminación cancelada.");
+                return;
+            }
+
             controlador.eliminarSocio(codigoActividad, numeroSocio);
             System.out.println("Socio eliminado correctamente.");
         } catch (ElementoNoEncontradoException e) {
@@ -254,7 +288,10 @@ public class MenuConsola {
             System.out.print("Número de socio a buscar: ");
             String numeroSocio = sc.nextLine();
             Socio s = controlador.buscarSocio(codigoActividad, numeroSocio);
+            Actividad a = controlador.buscarActividad(codigoActividad);
             System.out.println("Encontrado: " + s.mostrarInfo());
+
+            System.out.println(s.generarComprobante(a));
         } catch (ElementoNoEncontradoException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -281,11 +318,43 @@ public class MenuConsola {
 
 
 
+    private void menuInstructores() {
+        Instructor[] instructores = controlador.listarInstructores();
+        if (instructores.length == 0) {
+            System.out.println("No hay instructores registrados.");
+            return;
+        }
+        System.out.print("¿Cuántos días trabajó este mes cada instructor? (0-31): ");
+        int dias = leerEntero();
+
+        System.out.println("\n--- Instructores del club ---");
+        for (Instructor i : instructores) {
+
+            System.out.println(i.mostrarInfo());
+
+            int totalAlumnos = controlador.contarAlumnosDeInstructor(i);
+            try {
+
+                double pagoBase = i.calcularPago(dias);
+                double pagoConBono = i.calcularPago(dias, BONO_POR_ALUMNO, totalAlumnos);
+
+                System.out.println("   Alumnos a cargo: " + totalAlumnos);
+                System.out.println("   Pago por días trabajados (sin bono): $" + pagoBase);
+                System.out.println("   Pago con bono ($" + (int) BONO_POR_ALUMNO + " x alumno): $" + pagoConBono);
+            } catch (IllegalArgumentException e) {
+                System.out.println("   No se pudo calcular el pago: " + e.getMessage());
+            }
+            System.out.println();
+        }
+    }
+
+
+
     private void generarReporte() {
         try {
             controlador.generarReporte();
             System.out.println("Reporte generado correctamente: " + controlador.getNombreArchivoReporte());
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             System.out.println("Error al generar el reporte: " + e.getMessage());
         }
     }

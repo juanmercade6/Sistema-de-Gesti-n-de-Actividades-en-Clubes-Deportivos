@@ -44,10 +44,14 @@ public class PersistenciaCSV {
             String linea;
             while ((linea = br.readLine()) != null) {
                 if (linea.trim().isEmpty()) continue;
-                String[] campos = linea.split(SEP);
-                Instructor i = new Instructor(campos[0], campos[1], campos[2],
-                        Integer.parseInt(campos[3]), campos[4], campos[5], Double.parseDouble(campos[6]));
-                gestor.agregarInstructor(i);
+                try {
+                    String[] campos = linea.split(SEP);
+                    Instructor i = new Instructor(campos[0], campos[1], campos[2],
+                            Integer.parseInt(campos[3]), campos[4], campos[5], Double.parseDouble(campos[6]));
+                    gestor.agregarInstructor(i);
+                } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
+                    System.out.println("Fila de instructor inválida, se omite: " + linea + " (" + e.getMessage() + ")");
+                }
             }
         } catch (IOException e) {
             System.out.println("No se pudieron cargar instructores (" + e.getMessage() + "). Se continúa sin ellos.");
@@ -57,16 +61,20 @@ public class PersistenciaCSV {
             String linea;
             while ((linea = br.readLine()) != null) {
                 if (linea.trim().isEmpty()) continue;
-                String[] campos = linea.split(SEP);
-                Instructor instructor = null;
                 try {
-                    instructor = gestor.buscarInstructor(campos[5]);
-                } catch (ElementoNoEncontradoException e) {
-                    System.out.println("Aviso: instructor '" + campos[5] + "' no encontrado para actividad " + campos[0]);
+                    String[] campos = linea.split(SEP);
+                    Instructor instructor = null;
+                    try {
+                        instructor = gestor.buscarInstructor(campos[5]);
+                    } catch (ElementoNoEncontradoException e) {
+                        System.out.println("Aviso: instructor '" + campos[5] + "' no encontrado para actividad " + campos[0]);
+                    }
+                    Actividad a = new Actividad(campos[0], campos[1], Deporte.valueOf(campos[2]),
+                            campos[3], Integer.parseInt(campos[4]), instructor);
+                    gestor.agregarActividad(a);
+                } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
+                    System.out.println("Fila de actividad inválida, se omite: " + linea + " (" + e.getMessage() + ")");
                 }
-                Actividad a = new Actividad(campos[0], campos[1], Deporte.valueOf(campos[2]),
-                        campos[3], Integer.parseInt(campos[4]), instructor);
-                gestor.agregarActividad(a);
             }
         } catch (IOException e) {
             System.out.println("No se pudieron cargar actividades (" + e.getMessage() + "). Se continúa sin ellas.");
@@ -76,15 +84,19 @@ public class PersistenciaCSV {
             String linea;
             while ((linea = br.readLine()) != null) {
                 if (linea.trim().isEmpty()) continue;
-                String[] campos = linea.split(SEP);
-                Socio s = new Socio(campos[0], campos[1], campos[2],
-                        Integer.parseInt(campos[3]), campos[4], campos[5]);
-                String codigoActividad = campos[6];
                 try {
-                    gestor.inscribirSocio(codigoActividad, s);
-                } catch (ElementoNoEncontradoException | CupoExcedidoException e) {
-                    System.out.println("Aviso: no se pudo inscribir a " + s.getNumeroSocio()
-                            + " en " + codigoActividad + " (" + e.getMessage() + ")");
+                    String[] campos = linea.split(SEP);
+                    Socio s = new Socio(campos[0], campos[1], campos[2],
+                            Integer.parseInt(campos[3]), campos[4], campos[5]);
+                    String codigoActividad = campos[6];
+                    try {
+                        gestor.inscribirSocio(codigoActividad, s);
+                    } catch (ElementoNoEncontradoException | CupoExcedidoException e) {
+                        System.out.println("Aviso: no se pudo inscribir a " + s.getNumeroSocio()
+                                + " en " + codigoActividad + " (" + e.getMessage() + ")");
+                    }
+                } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
+                    System.out.println("Fila de socio inválida, se omite: " + linea + " (" + e.getMessage() + ")");
                 }
             }
         } catch (IOException e) {

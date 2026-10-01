@@ -41,7 +41,6 @@ public class ControladorClub {
     }
 
 
-
     public void agregarActividad(String codigo, String nombre, Deporte deporte, String horario,
                                   int cupoMaximo, Instructor instructor) {
         gestor.agregarActividad(new Actividad(codigo, nombre, deporte, horario, cupoMaximo, instructor));
@@ -68,6 +67,10 @@ public class ControladorClub {
 
     public Instructor[] listarInstructores() {
         return gestor.listarInstructores();
+    }
+
+    public int contarAlumnosDeInstructor(Instructor instructor) {
+        return gestor.contarAlumnosDeInstructor(instructor);
     }
 
 

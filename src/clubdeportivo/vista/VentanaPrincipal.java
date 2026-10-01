@@ -1,8 +1,8 @@
 package clubdeportivo.vista;
 
+import clubdeportivo.controlador.ControladorClub;
 import clubdeportivo.excepciones.CupoExcedidoException;
 import clubdeportivo.excepciones.ElementoNoEncontradoException;
-import clubdeportivo.controlador.ControladorClub;
 import clubdeportivo.modelo.Actividad;
 import clubdeportivo.modelo.Deporte;
 import clubdeportivo.modelo.Instructor;
@@ -15,6 +15,8 @@ import java.awt.*;
 
 public class VentanaPrincipal extends JFrame {
 
+    private static final double BONO_POR_ALUMNO = 5000;
+
     private ControladorClub controlador;
 
     private DefaultTableModel modeloActividades;
@@ -25,7 +27,9 @@ public class VentanaPrincipal extends JFrame {
     private JTextField campoCodigoActividadSocios;
 
     private DefaultTableModel modeloFiltro;
-    private JTable tablaFiltro;
+
+    private DefaultTableModel modeloInstructores;
+    private JSpinner spinnerDias;
 
     public VentanaPrincipal(ControladorClub controlador) {
         super("Sistema de Gestión de Actividades en Clubes Deportivos");
@@ -36,12 +40,13 @@ public class VentanaPrincipal extends JFrame {
 
     private void initComponents() {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(900, 550);
+        setSize(950, 580);
         setLocationRelativeTo(null);
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Actividades", crearPanelActividades());
         tabs.addTab("Socios", crearPanelSocios());
+        tabs.addTab("Instructores", crearPanelInstructores());
         tabs.addTab("Cupos disponibles", crearPanelFiltro());
         tabs.addTab("Reporte", crearPanelReporte());
 
@@ -54,29 +59,6 @@ public class VentanaPrincipal extends JFrame {
                 controlador.guardarYSalir();
             }
         });
-    }
-
-
-
-    private JPanel crearPanelReporte() {
-        JPanel panel = new JPanel(new BorderLayout());
-        JLabel info = new JLabel("Genera un archivo CSV con el detalle de ocupación de cada actividad,"
-                + " listo para abrir en una planilla de cálculo.", SwingConstants.CENTER);
-        JButton btnGenerar = new JButton("Generar reporte");
-        btnGenerar.addActionListener(e -> {
-            try {
-                controlador.generarReporte();
-                JOptionPane.showMessageDialog(this, "Reporte generado: " + controlador.getNombreArchivoReporte());
-            } catch (java.io.IOException ex) {
-                JOptionPane.showMessageDialog(this, "Error al generar el reporte: " + ex.getMessage(),
-                        "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        JPanel centro = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        centro.add(btnGenerar);
-        panel.add(info, BorderLayout.NORTH);
-        panel.add(centro, BorderLayout.CENTER);
-        return panel;
     }
 
 
@@ -118,13 +100,20 @@ public class VentanaPrincipal extends JFrame {
         });
         btnEliminar.addActionListener(e -> {
             String codigo = obtenerCodigoSeleccionado();
-            if (codigo != null) {
-                try {
-                    controlador.eliminarActividad(codigo);
-                    refrescarActividades();
-                } catch (ElementoNoEncontradoException ex) {
-                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            if (codigo == null) return;
+            try {
+                Actividad a = controlador.buscarActividad(codigo);
+
+                int confirmacion = JOptionPane.showConfirmDialog(this,
+                        "¿Está seguro de eliminar la actividad '" + a.getNombre() + "'?",
+                        "Confirmar eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                if (confirmacion != JOptionPane.YES_OPTION) {
+                    return;
                 }
+                controlador.eliminarActividad(codigo);
+                refrescarActividades();
+            } catch (ElementoNoEncontradoException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         btnBuscar.addActionListener(e -> {
@@ -189,6 +178,9 @@ public class VentanaPrincipal extends JFrame {
                 refrescarActividades();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "El cupo máximo debe ser un número entero.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (IllegalArgumentException ex) {
+
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Datos inválidos", JOptionPane.ERROR_MESSAGE);
             } catch (ElementoNoEncontradoException ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -302,8 +294,16 @@ public class VentanaPrincipal extends JFrame {
                 controlador.inscribirSocio(codigoActividad, s);
                 refrescarSocios();
                 refrescarActividades();
+
+
+                Actividad actividadInscrita = controlador.buscarActividad(codigoActividad);
+                JOptionPane.showMessageDialog(this, s.generarComprobante(actividadInscrita, true),
+                        "Comprobante de inscripción", JOptionPane.INFORMATION_MESSAGE);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "La edad debe ser un número entero.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (IllegalArgumentException ex) {
+
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Datos inválidos", JOptionPane.ERROR_MESSAGE);
             } catch (ElementoNoEncontradoException | CupoExcedidoException ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -345,6 +345,8 @@ public class VentanaPrincipal extends JFrame {
             }
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "La edad debe ser un número entero.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Datos inválidos", JOptionPane.ERROR_MESSAGE);
         } catch (ElementoNoEncontradoException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -355,6 +357,14 @@ public class VentanaPrincipal extends JFrame {
         String numeroSocio = obtenerNumeroSocioSeleccionado();
         if (numeroSocio == null) return;
         try {
+            Socio s = controlador.buscarSocio(codigoActividad, numeroSocio);
+
+            int confirmacion = JOptionPane.showConfirmDialog(this,
+                    "¿Está seguro de eliminar a " + s.getNombre() + " " + s.getApellido() + "?",
+                    "Confirmar eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+            if (confirmacion != JOptionPane.YES_OPTION) {
+                return;
+            }
             controlador.eliminarSocio(codigoActividad, numeroSocio);
             refrescarSocios();
             refrescarActividades();
@@ -369,10 +379,77 @@ public class VentanaPrincipal extends JFrame {
         if (numeroSocio == null) return;
         try {
             Socio s = controlador.buscarSocio(codigoActividad, numeroSocio);
-            JOptionPane.showMessageDialog(this, s.mostrarInfo(), "Socio encontrado", JOptionPane.INFORMATION_MESSAGE);
+            Actividad a = controlador.buscarActividad(codigoActividad);
+
+            String mensaje = s.mostrarInfo() + "\n\n" + s.generarComprobante(a);
+            JOptionPane.showMessageDialog(this, mensaje, "Socio encontrado", JOptionPane.INFORMATION_MESSAGE);
         } catch (ElementoNoEncontradoException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+
+
+    private JPanel crearPanelInstructores() {
+        JPanel panel = new JPanel(new BorderLayout(5, 5));
+
+        modeloInstructores = new DefaultTableModel(
+                new Object[]{"ID", "Nombre", "Especialidad", "Alumnos a cargo", "Pago (sin bono)", "Pago con bono"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+        };
+        JTable tablaInstructores = new JTable(modeloInstructores);
+        panel.add(new JScrollPane(tablaInstructores), BorderLayout.CENTER);
+
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topPanel.add(new JLabel("Días trabajados este mes:"));
+        spinnerDias = new JSpinner(new SpinnerNumberModel(30, 0, 31, 1));
+        topPanel.add(spinnerDias);
+        JButton btnActualizar = new JButton("Calcular pagos");
+        JButton btnDetalle = new JButton("Ver detalle");
+        topPanel.add(btnActualizar);
+        topPanel.add(btnDetalle);
+        panel.add(topPanel, BorderLayout.NORTH);
+
+        Runnable refrescar = () -> {
+            int dias = (Integer) spinnerDias.getValue();
+            modeloInstructores.setRowCount(0);
+            for (Instructor i : controlador.listarInstructores()) {
+                int totalAlumnos = controlador.contarAlumnosDeInstructor(i);
+                try {
+
+                    double pagoBase = i.calcularPago(dias);
+                    double pagoConBono = i.calcularPago(dias, BONO_POR_ALUMNO, totalAlumnos);
+                    modeloInstructores.addRow(new Object[]{i.getId(), i.getNombre() + " " + i.getApellido(),
+                            i.getEspecialidad(), totalAlumnos, pagoBase, pagoConBono});
+                } catch (IllegalArgumentException ex) {
+                    modeloInstructores.addRow(new Object[]{i.getId(), i.getNombre() + " " + i.getApellido(),
+                            i.getEspecialidad(), totalAlumnos, "N/A", "N/A"});
+                }
+            }
+        };
+        btnActualizar.addActionListener(e -> refrescar.run());
+        btnDetalle.addActionListener(e -> {
+            int fila = tablaInstructores.getSelectedRow();
+            if (fila == -1) {
+                JOptionPane.showMessageDialog(this, "Seleccione un instructor de la tabla.");
+                return;
+            }
+            String id = (String) modeloInstructores.getValueAt(fila, 0);
+            for (Instructor i : controlador.listarInstructores()) {
+                if (i.getId().equals(id)) {
+
+                    JOptionPane.showMessageDialog(this, i.mostrarInfo(), "Detalle del instructor",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    break;
+                }
+            }
+        });
+        refrescar.run();
+
+        return panel;
     }
 
 
@@ -397,12 +474,12 @@ public class VentanaPrincipal extends JFrame {
                 return false;
             }
         };
-        tablaFiltro = new JTable(modeloFiltro);
+        JTable tablaFiltro = new JTable(modeloFiltro);
         panel.add(new JScrollPane(tablaFiltro), BorderLayout.CENTER);
 
         btnFiltrar.addActionListener(e -> {
             String seleccion = (String) comboDeporte.getSelectedItem();
-            Deporte filtro = (seleccion == null || seleccion.equals("(Todos )")) ? null : Deporte.valueOf(seleccion);
+            Deporte filtro = (seleccion == null || seleccion.equals("(Todos)")) ? null : Deporte.valueOf(seleccion);
             Actividad[] resultado = controlador.listarActividadesConCupoDisponible(filtro);
             modeloFiltro.setRowCount(0);
             for (Actividad a : resultado) {
@@ -411,6 +488,29 @@ public class VentanaPrincipal extends JFrame {
             }
         });
 
+        return panel;
+    }
+
+
+
+    private JPanel crearPanelReporte() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JLabel info = new JLabel("Genera un archivo CSV con el detalle de ocupación de cada actividad,"
+                + " listo para abrir en una planilla de cálculo.", SwingConstants.CENTER);
+        JButton btnGenerar = new JButton("Generar reporte");
+        btnGenerar.addActionListener(e -> {
+            try {
+                controlador.generarReporte();
+                JOptionPane.showMessageDialog(this, "Reporte generado: " + controlador.getNombreArchivoReporte());
+            } catch (java.io.IOException ex) {
+                JOptionPane.showMessageDialog(this, "Error al generar el reporte: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        JPanel centro = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        centro.add(btnGenerar);
+        panel.add(info, BorderLayout.NORTH);
+        panel.add(centro, BorderLayout.CENTER);
         return panel;
     }
 }
