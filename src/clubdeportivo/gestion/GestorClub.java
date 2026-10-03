@@ -32,7 +32,11 @@ public class GestorClub {
     }
 
     public void agregarActividad(Actividad actividad) {
-        actividades.put(normalizarCodigo(actividad.getCodigo()), actividad);
+        String codigoNormalizado = normalizarCodigo(actividad.getCodigo());
+        if (actividades.containsKey(codigoNormalizado)) {
+            throw new IllegalArgumentException("Ya existe una actividad con el código '" + actividad.getCodigo() + "'.");
+        }
+        actividades.put(codigoNormalizado, actividad);
     }
 
 

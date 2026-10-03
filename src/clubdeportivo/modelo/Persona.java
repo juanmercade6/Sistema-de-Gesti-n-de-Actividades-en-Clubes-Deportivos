@@ -43,7 +43,7 @@ public abstract class Persona {
     }
 
     private static void validarEmail(String email) {
-        if (email == null || !email.contains("@") || email.trim().isEmpty()) {
+        if (email == null || !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
             throw new IllegalArgumentException("El email no tiene un formato válido.");
         }
     }

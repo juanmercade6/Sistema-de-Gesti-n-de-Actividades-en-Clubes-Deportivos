@@ -45,7 +45,15 @@ public class PersistenciaCSV {
             while ((linea = br.readLine()) != null) {
                 if (linea.trim().isEmpty()) continue;
                 try {
-                    String[] campos = linea.split(SEP);
+                    String[] campos = linea.split(SEP, -1); // <-- CAMBIAR ESTO
+                    Instructor instructor = null;
+                       if (!campos[5].isEmpty()) { // <-- AGREGAR ESTA VERIFICACIÓN
+                            try {
+                                instructor = gestor.buscarInstructor(campos[5]);
+                            } catch (ElementoNoEncontradoException e) {
+                                System.out.println("Aviso: instructor '" + campos[5] + "' no encontrado para actividad " + campos[0]);
+                            }
+                        }
                     Instructor i = new Instructor(campos[0], campos[1], campos[2],
                             Integer.parseInt(campos[3]), campos[4], campos[5], Double.parseDouble(campos[6]));
                     gestor.agregarInstructor(i);

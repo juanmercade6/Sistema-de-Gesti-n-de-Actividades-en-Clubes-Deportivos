@@ -91,8 +91,11 @@ public class Actividad {
     }
 
     public void setCupoMaximo(int cupoMaximo) {
-        validarCupo(cupoMaximo);
-        this.cupoMaximo = cupoMaximo;
+    validarCupo(cupoMaximo);
+    if (cupoMaximo < inscritos.size()) {
+         throw new IllegalArgumentException("El cupo máximo no puede ser menor a la cantidad actual de inscritos (" + inscritos.size() + ").");
+    }
+    this.cupoMaximo = cupoMaximo;
     }
 
     public Instructor getInstructor() {

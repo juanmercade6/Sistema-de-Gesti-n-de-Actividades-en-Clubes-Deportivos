@@ -1,5 +1,7 @@
 package clubdeportivo.modelo;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 public class Socio extends Persona {
 
@@ -38,6 +40,11 @@ public class Socio extends Persona {
     public void setFechaInscripcion(String fechaInscripcion) {
         if (fechaInscripcion == null || fechaInscripcion.trim().isEmpty()) {
             throw new IllegalArgumentException("La fecha de inscripción no puede estar vacía.");
+        }
+        try {
+            LocalDate.parse(fechaInscripcion);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("La fecha debe tener el formato válido (yyyy-MM-dd).");
         }
         this.fechaInscripcion = fechaInscripcion;
     }
