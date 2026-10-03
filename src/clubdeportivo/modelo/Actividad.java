@@ -120,12 +120,18 @@ public class Actividad {
 
 
     public void inscribirSocio(Socio socio) throws CupoExcedidoException {
-        if (inscritos.size() >= cupoMaximo) {
-            throw new CupoExcedidoException("La actividad '" + nombre
-                    + "' ya alcanzó su cupo máximo (" + cupoMaximo + ").");
+    for (Socio s : inscritos) {
+        if (s.getNumeroSocio().equalsIgnoreCase(socio.getNumeroSocio())) {
+            throw new IllegalArgumentException("El socio '" + socio.getNumeroSocio()
+                    + "' ya está inscrito en la actividad '" + nombre + "'.");
         }
-        inscritos.add(socio);
     }
+    if (inscritos.size() >= cupoMaximo) {
+        throw new CupoExcedidoException("La actividad '" + nombre
+                + "' ya alcanzó su cupo máximo (" + cupoMaximo + ").");
+    }
+    inscritos.add(socio);
+}
 
 
     public Socio buscarSocioPorNumero(String numeroSocio) throws ElementoNoEncontradoException {
