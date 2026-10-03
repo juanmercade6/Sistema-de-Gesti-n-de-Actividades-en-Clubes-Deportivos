@@ -99,11 +99,9 @@ public class ControladorClub {
     }
 
 
-
     public Actividad[] listarActividadesConCupoDisponible(Deporte filtroDeporte) {
         return gestor.listarActividadesConCupoDisponible(filtroDeporte);
     }
-
 
     public void generarReporte() throws IOException {
         persistencia.exportarReporte(gestor, ARCHIVO_REPORTE);

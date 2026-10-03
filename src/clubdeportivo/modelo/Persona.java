@@ -1,6 +1,5 @@
 package clubdeportivo.modelo;
 
-
 public abstract class Persona {
 
     private static final int EDAD_MINIMA = 0;
@@ -48,7 +47,6 @@ public abstract class Persona {
             throw new IllegalArgumentException("El email no tiene un formato válido.");
         }
     }
-
 
     public String getId() {
         return id;

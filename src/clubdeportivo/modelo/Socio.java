@@ -73,3 +73,4 @@ public class Socio extends Persona {
         return base;
     }
 }
+

@@ -27,7 +27,6 @@ public class GestorClub {
     }
 
 
-
     private String normalizarCodigo(String codigo) {
         return codigo == null ? null : codigo.trim().toUpperCase();
     }
@@ -232,6 +231,7 @@ public class GestorClub {
             inscribirSocio("A010", new Socio("S028", "Joaquín", "Pizarro", 27, "joaquin.pizarro@mail.cl", "2026-03-28"));
             inscribirSocio("A010", new Socio("S029", "Trinidad", "Guzmán", 21, "trinidad.guzman@mail.cl", "2026-03-29"));
         } catch (ElementoNoEncontradoException | CupoExcedidoException e) {
+
             System.out.println("Error inesperado al cargar datos iniciales: " + e.getMessage());
         }
     }
