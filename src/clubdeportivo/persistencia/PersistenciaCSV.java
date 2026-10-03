@@ -45,9 +45,9 @@ public class PersistenciaCSV {
             while ((linea = br.readLine()) != null) {
                 if (linea.trim().isEmpty()) continue;
                 try {
-                    String[] campos = linea.split(SEP, -1); // <-- CAMBIAR ESTO
+                    String[] campos = linea.split(SEP, -1);
                     Instructor instructor = null;
-                       if (!campos[5].isEmpty()) { // <-- AGREGAR ESTA VERIFICACIÓN
+                       if (!campos[5].isEmpty()) {
                             try {
                                 instructor = gestor.buscarInstructor(campos[5]);
                             } catch (ElementoNoEncontradoException e) {
